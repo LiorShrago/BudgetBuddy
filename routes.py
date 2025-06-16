@@ -8,6 +8,7 @@ from sqlalchemy import func, and_, or_
 from app import app, db
 from models import User, Account, Category, Transaction, Budget, BudgetItem, CategorizationRule
 from csv_processor import process_csv_file
+from csv_parsers import get_parser_by_format, detect_csv_format
 from categorization import auto_categorize_transaction
 
 
@@ -190,6 +191,7 @@ def upload():
         file = request.files['file']
         account_id = request.form.get('account_id')
         create_new_account = request.form.get('create_new_account')
+        csv_format = request.form.get('csv_format', 'auto')
         
         if file.filename == '':
             flash('No file selected', 'error')
@@ -226,9 +228,22 @@ def upload():
             file.save(filepath)
             
             try:
-                # Process CSV file
-                transactions_count = process_csv_file(filepath, account_id, current_user.id)
-                flash(f'Successfully imported {transactions_count} transactions', 'success')
+                # Determine CSV format
+                if csv_format == 'auto':
+                    detected_format = detect_csv_format(filepath)
+                    csv_format = detected_format
+                
+                # Use appropriate parser
+                if csv_format == 'generic':
+                    transactions_count = process_csv_file(filepath, int(account_id), current_user.id)
+                else:
+                    parser = get_parser_by_format(csv_format)
+                    if parser:
+                        transactions_count = parser.parse(filepath, int(account_id), current_user.id)
+                    else:
+                        transactions_count = process_csv_file(filepath, int(account_id), current_user.id)
+                
+                flash(f'Successfully imported {transactions_count} transactions using {csv_format.replace("_", " ").title()} format', 'success')
                 os.remove(filepath)  # Clean up uploaded file
                 return redirect(url_for('transactions'))
             except Exception as e:

@@ -85,10 +85,26 @@
                     </div>
                     
                     <div class="mb-3">
+                        <label for="csv_format" class="form-label">CSV Format</label>
+                        <select class="form-select" id="csv_format" name="csv_format" required>
+                            <option value="auto">Auto-detect format</option>
+                            <option value="amex">American Express</option>
+                            <option value="cibc">CIBC</option>
+                            <option value="eq_bank">EQ Bank</option>
+                            <option value="simplii">Simplii Financial</option>
+                            <option value="td">TD Bank</option>
+                            <option value="generic">Generic CSV</option>
+                        </select>
+                        <div class="form-text">
+                            Select your bank's CSV format for optimal parsing. Auto-detect will try to identify the format automatically.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
                         <label for="file" class="form-label">CSV File</label>
                         <input type="file" class="form-control" id="file" name="file" accept=".csv" required>
                         <div class="form-text">
-                            Upload a CSV file with transaction data. The file should contain columns for date, description, and amount.
+                            Upload a CSV file with transaction data from your selected bank.
                         </div>
                     </div>
                     
@@ -108,30 +124,33 @@
             <div class="card-header">
                 <h5 class="card-title mb-0">
                     <i data-feather="help-circle"></i>
-                    CSV Format Guide
+                    Supported Bank Formats
                 </h5>
             </div>
             <div class="card-body">
-                <h6>Required Columns:</h6>
-                <ul class="list-unstyled">
-                    <li><strong>Date:</strong> Transaction date</li>
-                    <li><strong>Description:</strong> Transaction details</li>
-                    <li><strong>Amount:</strong> Transaction amount</li>
+                <h6>Supported Banks:</h6>
+                <ul class="list-unstyled small">
+                    <li><strong>American Express:</strong> Date, Description, Amount</li>
+                    <li><strong>CIBC:</strong> Date, Description, Debit, Credit</li>
+                    <li><strong>EQ Bank:</strong> Date, Description, Amount, Balance</li>
+                    <li><strong>Simplii Financial:</strong> Date, Details, Funds Out, Funds In</li>
+                    <li><strong>TD Bank:</strong> Date, Description, Debit</li>
+                    <li><strong>Generic CSV:</strong> Any standard format</li>
                 </ul>
                 
-                <h6 class="mt-3">Supported Date Formats:</h6>
-                <ul class="list-unstyled small">
-                    <li>MM/DD/YYYY (01/15/2024)</li>
-                    <li>MM-DD-YYYY (01-15-2024)</li>
-                    <li>YYYY-MM-DD (2024-01-15)</li>
-                </ul>
+                <h6 class="mt-3">Auto-Detection:</h6>
+                <p class="small text-muted">
+                    The system can automatically detect your bank's format based on the CSV structure. 
+                    Manual selection ensures optimal parsing accuracy.
+                </p>
                 
                 <h6 class="mt-3">Features:</h6>
                 <ul class="list-unstyled small">
-                    <li>✓ Automatic column detection</li>
+                    <li>✓ Bank-specific CSV parsing</li>
+                    <li>✓ Automatic format detection</li>
                     <li>✓ Duplicate transaction prevention</li>
                     <li>✓ Smart categorization</li>
-                    <li>✓ Merchant extraction</li>
+                    <li>✓ Merchant name extraction</li>
                 </ul>
             </div>
         </div>
