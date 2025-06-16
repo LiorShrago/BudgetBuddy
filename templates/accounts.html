@@ -27,11 +27,24 @@
                     
                     <h3 class="text-primary mb-3">${{ "%.2f"|format(account.balance) }}</h3>
                     
-                    <div class="d-flex justify-content-between text-muted small">
+                    <div class="d-flex justify-content-between text-muted small mb-3">
                         <span>Created: {{ account.created_at.strftime('%m/%d/%Y') }}</span>
                         <span class="badge bg-{{ 'success' if account.is_active else 'danger' }}">
                             {{ 'Active' if account.is_active else 'Inactive' }}
                         </span>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="button" class="btn btn-outline-primary btn-sm" 
+                                onclick="editAccount({{ account.id }}, '{{ account.name }}', '{{ account.account_type }}', {{ account.balance }}, {{ account.is_active|lower }})">
+                            <i data-feather="edit-2"></i>
+                            Edit
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                onclick="confirmDeleteAccount({{ account.id }}, '{{ account.name }}')">
+                            <i data-feather="trash-2"></i>
+                            Delete
+                        </button>
                     </div>
                 </div>
             </div>
@@ -104,4 +117,133 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Account Modal -->
+<div class="modal fade" id="editAccountModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i data-feather="edit-2"></i>
+                    Edit Account
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('edit_account') }}">
+                <input type="hidden" id="edit_account_id" name="account_id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_name" class="form-label">Account Name</label>
+                        <input type="text" class="form-control" id="edit_name" name="name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_account_type" class="form-label">Account Type</label>
+                        <select class="form-select" id="edit_account_type" name="account_type" required>
+                            <option value="checking">Checking</option>
+                            <option value="savings">Savings</option>
+                            <option value="credit_card">Credit Card</option>
+                            <option value="investment">Investment</option>
+                            <option value="loan">Loan</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_balance" class="form-label">Current Balance</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="edit_balance" name="balance" step="0.01">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="edit_is_active" name="is_active" value="1">
+                            <label class="form-check-label" for="edit_is_active">
+                                Account is active
+                            </label>
+                            <div class="form-text">Inactive accounts won't appear in transaction dropdowns</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i data-feather="save"></i>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">
+                    <i data-feather="alert-triangle"></i>
+                    Delete Account
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('delete_account') }}">
+                <input type="hidden" id="delete_account_id" name="account_id">
+                <div class="modal-body">
+                    <div class="alert alert-danger">
+                        <strong>Warning:</strong> This action cannot be undone!
+                    </div>
+                    
+                    <p>Are you sure you want to delete the account "<span id="delete_account_name" class="fw-bold"></span>"?</p>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Note:</strong> All transactions associated with this account will also be permanently deleted.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="confirm_delete" class="form-label">Type "DELETE" to confirm:</label>
+                        <input type="text" class="form-control" id="confirm_delete" name="confirm_delete" 
+                               placeholder="Type DELETE to confirm" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger" id="confirm_delete_btn" disabled>
+                        <i data-feather="trash-2"></i>
+                        Delete Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function editAccount(id, name, accountType, balance, isActive) {
+    document.getElementById('edit_account_id').value = id;
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_account_type').value = accountType;
+    document.getElementById('edit_balance').value = balance;
+    document.getElementById('edit_is_active').checked = isActive;
+    
+    new bootstrap.Modal(document.getElementById('editAccountModal')).show();
+}
+
+function confirmDeleteAccount(id, name) {
+    document.getElementById('delete_account_id').value = id;
+    document.getElementById('delete_account_name').textContent = name;
+    document.getElementById('confirm_delete').value = '';
+    document.getElementById('confirm_delete_btn').disabled = true;
+    
+    new bootstrap.Modal(document.getElementById('deleteAccountModal')).show();
+}
+
+// Enable delete button only when "DELETE" is typed
+document.getElementById('confirm_delete').addEventListener('input', function(e) {
+    const deleteBtn = document.getElementById('confirm_delete_btn');
+    deleteBtn.disabled = e.target.value !== 'DELETE';
+});
+</script>
 {% endblock %}

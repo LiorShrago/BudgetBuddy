@@ -342,6 +342,71 @@ def add_account():
     return redirect(url_for('accounts'))
 
 
+@app.route('/edit_account', methods=['POST'])
+@login_required
+def edit_account():
+    account_id = request.form.get('account_id')
+    name = request.form.get('name')
+    account_type = request.form.get('account_type')
+    balance = request.form.get('balance')
+    is_active = request.form.get('is_active') == '1'
+    
+    account = Account.query.filter_by(id=account_id, user_id=current_user.id).first()
+    if not account:
+        flash('Account not found', 'error')
+        return redirect(url_for('accounts'))
+    
+    account.name = name
+    account.account_type = account_type
+    account.is_active = is_active
+    
+    if balance and balance.strip():
+        try:
+            account.balance = float(balance)
+        except ValueError:
+            flash('Invalid balance amount', 'error')
+            return redirect(url_for('accounts'))
+    
+    db.session.commit()
+    flash('Account updated successfully', 'success')
+    return redirect(url_for('accounts'))
+
+
+@app.route('/delete_account', methods=['POST'])
+@login_required
+def delete_account():
+    account_id = request.form.get('account_id')
+    confirm_delete = request.form.get('confirm_delete')
+    
+    if confirm_delete != 'DELETE':
+        flash('Account deletion not confirmed', 'error')
+        return redirect(url_for('accounts'))
+    
+    account = Account.query.filter_by(id=account_id, user_id=current_user.id).first()
+    if not account:
+        flash('Account not found', 'error')
+        return redirect(url_for('accounts'))
+    
+    # Check if account has transactions
+    transaction_count = Transaction.query.filter_by(account_id=account.id).count()
+    account_name = account.name
+    
+    try:
+        # Delete the account (this will cascade delete all associated transactions)
+        db.session.delete(account)
+        db.session.commit()
+        
+        if transaction_count > 0:
+            flash(f'Account "{account_name}" and {transaction_count} associated transactions deleted successfully', 'success')
+        else:
+            flash(f'Account "{account_name}" deleted successfully', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error deleting account. Please try again.', 'error')
+    
+    return redirect(url_for('accounts'))
+
+
 @app.route('/transactions')
 @login_required
 def transactions():
