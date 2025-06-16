@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectAllHeaderCheckbox = document.getElementById('select-all-header');
     const transactionCheckboxes = document.querySelectorAll('.transaction-checkbox');
     const categorizeSelectedBtn = document.getElementById('categorize-selected');
+    const aiCategorizeAllBtn = document.getElementById('ai-categorize-all');
+    const aiSuggestSelectedBtn = document.getElementById('ai-suggest-selected');
     const bulkCategorySelect = document.getElementById('bulk-category');
     const selectedCountBadge = document.getElementById('selected-count');
     const newCategoryForm = document.getElementById('new-category-form');
@@ -52,6 +54,25 @@ document.addEventListener('DOMContentLoaded', function() {
         bulkCategorizeTransactions(selectedTransactions, categoryId);
     });
     
+    // AI Auto-categorize all transactions
+    aiCategorizeAllBtn.addEventListener('click', function() {
+        if (confirm('This will automatically categorize all uncategorized transactions using AI. Continue?')) {
+            aiCategorizeAll();
+        }
+    });
+    
+    // AI suggest categories for selected transactions
+    aiSuggestSelectedBtn.addEventListener('click', function() {
+        const selectedTransactions = getSelectedTransactionIds();
+        
+        if (selectedTransactions.length === 0) {
+            showAlert('Please select transactions to get AI suggestions', 'warning');
+            return;
+        }
+        
+        aiSuggestCategories(selectedTransactions);
+    });
+    
     // Individual category change
     document.querySelectorAll('.category-select').forEach(select => {
         select.addEventListener('change', function() {
@@ -88,6 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const count = checkedBoxes.length;
         selectedCountBadge.textContent = `${count} selected`;
         categorizeSelectedBtn.disabled = count === 0;
+        aiSuggestSelectedBtn.disabled = count === 0;
         
         // Update select all checkbox state
         const visibleCheckboxes = Array.from(transactionCheckboxes).filter(cb => 
@@ -260,6 +282,101 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSelectedCount();
     }
     
+    function aiCategorizeAll() {
+        // Show loading state
+        const originalText = aiCategorizeAllBtn.innerHTML;
+        aiCategorizeAllBtn.innerHTML = '<i data-feather="loader" class="rotate"></i> Processing...';
+        aiCategorizeAllBtn.disabled = true;
+        
+        fetch('/api/ai-categorize-all', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                // Refresh page to show updated categorizations
+                setTimeout(() => window.location.reload(), 2000);
+            } else {
+                showAlert(data.message || 'Error in AI categorization', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Error in AI categorization', 'error');
+        })
+        .finally(() => {
+            aiCategorizeAllBtn.innerHTML = originalText;
+            aiCategorizeAllBtn.disabled = false;
+            feather.replace();
+        });
+    }
+    
+    function aiSuggestCategories(transactionIds) {
+        // Show loading state
+        const originalText = aiSuggestSelectedBtn.innerHTML;
+        aiSuggestSelectedBtn.innerHTML = '<i data-feather="loader" class="rotate"></i> Getting AI suggestions...';
+        aiSuggestSelectedBtn.disabled = true;
+        
+        const data = {
+            transaction_ids: transactionIds
+        };
+        
+        fetch('/api/ai-suggest-categories', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                applySuggestions(data.suggestions);
+                showAlert(`AI provided suggestions for ${Object.keys(data.suggestions).length} transactions`, 'info');
+            } else {
+                showAlert(data.message || 'Error getting AI suggestions', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Error getting AI suggestions', 'error');
+        })
+        .finally(() => {
+            aiSuggestSelectedBtn.innerHTML = originalText;
+            aiSuggestSelectedBtn.disabled = false;
+            feather.replace();
+        });
+    }
+    
+    function applySuggestions(suggestions) {
+        Object.keys(suggestions).forEach(transactionId => {
+            const suggestion = suggestions[transactionId];
+            const row = document.querySelector(`tr[data-transaction-id="${transactionId}"]`);
+            
+            if (row && suggestion.category_id) {
+                const categorySelect = row.querySelector('.category-select');
+                categorySelect.value = suggestion.category_id;
+                
+                // Highlight the suggested category
+                categorySelect.style.backgroundColor = '#fff3cd';
+                categorySelect.style.borderColor = '#ffc107';
+                
+                // Add a suggestion indicator
+                const saveBtn = row.querySelector('.save-category');
+                saveBtn.classList.remove('btn-outline-primary');
+                saveBtn.classList.add('btn-warning');
+                saveBtn.innerHTML = '<i data-feather="lightbulb"></i>';
+                saveBtn.title = `AI suggests: ${suggestion.category_name}`;
+            }
+        });
+        
+        feather.replace();
+    }
+    
     function showAlert(message, type) {
         const alertDiv = document.createElement('div');
         alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
@@ -271,12 +388,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         document.body.appendChild(alertDiv);
         
-        // Auto-dismiss after 3 seconds
+        // Auto-dismiss after 5 seconds for AI messages
+        const timeout = type === 'info' ? 5000 : 3000;
         setTimeout(() => {
             if (alertDiv.parentNode) {
                 alertDiv.remove();
             }
-        }, 3000);
+        }, timeout);
     }
     
     // Expand/collapse transaction descriptions

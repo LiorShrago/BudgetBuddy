@@ -229,5 +229,20 @@
 {% endblock %}
 
 {% block scripts %}
+<style>
+.rotate {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.ai-suggestion {
+    background-color: #fff3cd !important;
+    border-color: #ffc107 !important;
+}
+</style>
 <script src="{{ url_for('static', filename='js/categorize.js') }}"></script>
 {% endblock %}
