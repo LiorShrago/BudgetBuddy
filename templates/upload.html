@@ -19,13 +19,69 @@
             <div class="card-body">
                 <form method="POST" enctype="multipart/form-data" id="uploadForm">
                     <div class="mb-3">
+                        <label class="form-label">Account Selection</label>
+                        
+                        <!-- Radio buttons for account selection -->
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="account_option" id="existing_account" value="existing" checked>
+                            <label class="form-check-label" for="existing_account">
+                                Use existing account
+                            </label>
+                        </div>
+                        
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="account_option" id="new_account" value="new">
+                            <label class="form-check-label" for="new_account">
+                                Create new account
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Existing account selection -->
+                    <div class="mb-3" id="existing_account_section">
                         <label for="account_id" class="form-label">Select Account</label>
-                        <select class="form-select" id="account_id" name="account_id" required>
+                        <select class="form-select" id="account_id" name="account_id">
                             <option value="">Choose an account...</option>
                             {% for account in accounts %}
                             <option value="{{ account.id }}">{{ account.name }} ({{ account.account_type|title }})</option>
                             {% endfor %}
                         </select>
+                    </div>
+                    
+                    <!-- New account creation -->
+                    <div class="mb-3" id="new_account_section" style="display: none;">
+                        <input type="hidden" name="create_new_account" id="create_new_account" value="false">
+                        
+                        <div class="card border-info">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0">
+                                    <i data-feather="plus-circle"></i>
+                                    Create New Account
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <label for="new_account_name" class="form-label">Account Name</label>
+                                        <input type="text" class="form-control" id="new_account_name" name="new_account_name" placeholder="e.g., Chase Credit Card">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="new_account_type" class="form-label">Account Type</label>
+                                        <select class="form-select" id="new_account_type" name="new_account_type">
+                                            <option value="">Choose type...</option>
+                                            <option value="checking">Checking</option>
+                                            <option value="savings">Savings</option>
+                                            <option value="credit_card">Credit Card</option>
+                                            <option value="investment">Investment</option>
+                                            <option value="loan">Loan</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-text mt-2">
+                                    This account will be created and your transactions will be imported into it.
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="mb-3">

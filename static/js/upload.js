@@ -3,6 +3,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const uploadForm = document.getElementById('uploadForm');
     const fileInput = document.getElementById('file');
     const submitButton = uploadForm.querySelector('button[type="submit"]');
+    const existingAccountRadio = document.getElementById('existing_account');
+    const newAccountRadio = document.getElementById('new_account');
+    const existingAccountSection = document.getElementById('existing_account_section');
+    const newAccountSection = document.getElementById('new_account_section');
+    const createNewAccountHidden = document.getElementById('create_new_account');
+    
+    // Account selection radio button handlers
+    existingAccountRadio.addEventListener('change', function() {
+        if (this.checked) {
+            existingAccountSection.style.display = 'block';
+            newAccountSection.style.display = 'none';
+            createNewAccountHidden.value = 'false';
+            document.getElementById('account_id').required = true;
+            document.getElementById('new_account_name').required = false;
+            document.getElementById('new_account_type').required = false;
+        }
+    });
+    
+    newAccountRadio.addEventListener('change', function() {
+        if (this.checked) {
+            existingAccountSection.style.display = 'none';
+            newAccountSection.style.display = 'block';
+            createNewAccountHidden.value = 'true';
+            document.getElementById('account_id').required = false;
+            document.getElementById('new_account_name').required = true;
+            document.getElementById('new_account_type').required = true;
+        }
+    });
     
     // File input change handler
     fileInput.addEventListener('change', function(e) {
@@ -15,12 +43,31 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form submission handler
     uploadForm.addEventListener('submit', function(e) {
         const file = fileInput.files[0];
-        const accountId = document.getElementById('account_id').value;
+        const useExistingAccount = document.getElementById('existing_account').checked;
+        const useNewAccount = document.getElementById('new_account').checked;
         
-        if (!file || !accountId) {
+        if (!file) {
             e.preventDefault();
-            showAlert('Please select both a file and an account.', 'error');
+            showAlert('Please select a CSV file.', 'error');
             return;
+        }
+        
+        // Validate account selection
+        if (useExistingAccount) {
+            const accountId = document.getElementById('account_id').value;
+            if (!accountId) {
+                e.preventDefault();
+                showAlert('Please select an existing account.', 'error');
+                return;
+            }
+        } else if (useNewAccount) {
+            const newAccountName = document.getElementById('new_account_name').value.trim();
+            const newAccountType = document.getElementById('new_account_type').value;
+            if (!newAccountName || !newAccountType) {
+                e.preventDefault();
+                showAlert('Please provide account name and type for the new account.', 'error');
+                return;
+            }
         }
         
         if (!validateFile(file)) {

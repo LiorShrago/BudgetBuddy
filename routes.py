@@ -115,7 +115,17 @@ def accounts():
 def add_account():
     name = request.form['name']
     account_type = request.form['account_type']
-    balance = Decimal(request.form.get('balance', '0.00'))
+    balance_str = request.form.get('balance', '0.00').strip()
+    
+    # Handle empty or invalid balance
+    if not balance_str or balance_str == '':
+        balance = Decimal('0.00')
+    else:
+        try:
+            balance = Decimal(balance_str)
+        except:
+            flash('Invalid balance amount', 'error')
+            return redirect(url_for('accounts'))
     
     account = Account(
         user_id=current_user.id,
@@ -179,13 +189,35 @@ def upload():
         
         file = request.files['file']
         account_id = request.form.get('account_id')
+        create_new_account = request.form.get('create_new_account')
         
         if file.filename == '':
             flash('No file selected', 'error')
             return redirect(request.url)
         
+        # Handle new account creation
+        if create_new_account == 'true':
+            new_account_name = request.form.get('new_account_name', '').strip()
+            new_account_type = request.form.get('new_account_type', '').strip()
+            
+            if not new_account_name or not new_account_type:
+                flash('Please provide account name and type for new account', 'error')
+                return redirect(request.url)
+            
+            # Create new account
+            new_account = Account(
+                user_id=current_user.id,
+                name=new_account_name,
+                account_type=new_account_type,
+                balance=Decimal('0.00')
+            )
+            db.session.add(new_account)
+            db.session.commit()
+            account_id = new_account.id
+            flash(f'Created new account: {new_account_name}', 'success')
+        
         if not account_id:
-            flash('Please select an account', 'error')
+            flash('Please select an account or create a new one', 'error')
             return redirect(request.url)
         
         if file and file.filename.lower().endswith('.csv'):
