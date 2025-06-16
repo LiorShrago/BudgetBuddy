@@ -11,6 +11,7 @@ from models import User, Account, Category, Transaction, Budget, BudgetItem, Cat
 from csv_processor import process_csv_file
 from csv_parsers import get_parser_by_format, detect_csv_format
 from categorization import auto_categorize_transaction
+from ai_categorizer import auto_categorize_uncategorized_transactions, get_categorization_suggestions
 
 
 @app.route('/')
@@ -484,6 +485,45 @@ def create_category_api():
         
     except Exception as e:
         db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)})
+
+
+@app.route('/api/ai-categorize-all', methods=['POST'])
+@login_required
+def ai_categorize_all():
+    """Auto-categorize all uncategorized transactions using AI"""
+    try:
+        stats = auto_categorize_uncategorized_transactions(current_user.id)
+        
+        return jsonify({
+            'success': True,
+            'stats': stats,
+            'message': f"AI categorized {stats['categorized']} out of {stats['total']} transactions"
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
+
+@app.route('/api/ai-suggest-categories', methods=['POST'])
+@login_required
+def ai_suggest_categories():
+    """Get AI category suggestions for selected transactions"""
+    try:
+        data = request.get_json()
+        transaction_ids = data.get('transaction_ids', [])
+        
+        if not transaction_ids:
+            return jsonify({'success': False, 'message': 'No transactions selected'})
+        
+        suggestions = get_categorization_suggestions(transaction_ids, current_user.id)
+        
+        return jsonify({
+            'success': True,
+            'suggestions': suggestions
+        })
+        
+    except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
 
