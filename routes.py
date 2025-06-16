@@ -2,6 +2,7 @@ import os
 from datetime import datetime, date
 from decimal import Decimal
 from flask import render_template, request, redirect, url_for, flash, jsonify, session
+from datetime import datetime
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
 from sqlalchemy import func, and_, or_
@@ -339,6 +340,151 @@ def spending_chart():
     }
     
     return jsonify(chart_data)
+
+
+@app.route('/categorize')
+@login_required
+def categorize():
+    # Get filter parameters
+    category_filter = request.args.get('category', 'uncategorized')
+    account_filter = request.args.get('account')
+    date_from = request.args.get('date_from')
+    date_to = request.args.get('date_to')
+    
+    # Build query
+    query = Transaction.query.join(Account).filter(Account.user_id == current_user.id)
+    
+    # Apply category filter
+    if category_filter == 'uncategorized':
+        query = query.filter(Transaction.category_id.is_(None))
+    elif category_filter != 'all' and category_filter:
+        query = query.filter(Transaction.category_id == category_filter)
+    
+    # Apply account filter
+    if account_filter:
+        query = query.filter(Transaction.account_id == account_filter)
+    
+    # Apply date filters
+    if date_from:
+        query = query.filter(Transaction.date >= datetime.strptime(date_from, '%Y-%m-%d').date())
+    if date_to:
+        query = query.filter(Transaction.date <= datetime.strptime(date_to, '%Y-%m-%d').date())
+    
+    transactions = query.order_by(Transaction.date.desc()).all()
+    
+    # Get categories and accounts for dropdowns
+    categories = Category.query.filter_by(user_id=current_user.id).order_by(Category.name).all()
+    accounts = Account.query.filter_by(user_id=current_user.id).order_by(Account.name).all()
+    
+    return render_template('categorize.html', 
+                         transactions=transactions,
+                         categories=categories,
+                         accounts=accounts)
+
+
+@app.route('/api/bulk-categorize', methods=['POST'])
+@login_required
+def bulk_categorize():
+    try:
+        data = request.get_json()
+        transaction_ids = data.get('transaction_ids', [])
+        category_id = data.get('category_id')
+        
+        if not transaction_ids:
+            return jsonify({'success': False, 'message': 'No transactions selected'})
+        
+        # Verify transactions belong to user
+        transactions = Transaction.query.join(Account).filter(
+            Account.user_id == current_user.id,
+            Transaction.id.in_(transaction_ids)
+        ).all()
+        
+        if len(transactions) != len(transaction_ids):
+            return jsonify({'success': False, 'message': 'Invalid transactions selected'})
+        
+        # Update categories
+        count = 0
+        for transaction in transactions:
+            transaction.category_id = category_id if category_id else None
+            count += 1
+        
+        db.session.commit()
+        
+        return jsonify({'success': True, 'count': count})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)})
+
+
+@app.route('/api/update-category', methods=['POST'])
+@login_required
+def update_category():
+    try:
+        data = request.get_json()
+        transaction_id = data.get('transaction_id')
+        category_id = data.get('category_id')
+        
+        # Verify transaction belongs to user
+        transaction = Transaction.query.join(Account).filter(
+            Account.user_id == current_user.id,
+            Transaction.id == transaction_id
+        ).first()
+        
+        if not transaction:
+            return jsonify({'success': False, 'message': 'Transaction not found'})
+        
+        # Update category
+        transaction.category_id = category_id if category_id else None
+        db.session.commit()
+        
+        return jsonify({'success': True})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)})
+
+
+@app.route('/api/create-category', methods=['POST'])
+@login_required
+def create_category_api():
+    try:
+        data = request.get_json()
+        name = data.get('name', '').strip()
+        parent_id = data.get('parent_id')
+        color = data.get('color', '#007bff')
+        
+        if not name:
+            return jsonify({'success': False, 'message': 'Category name is required'})
+        
+        # Check if category already exists
+        existing = Category.query.filter_by(user_id=current_user.id, name=name).first()
+        if existing:
+            return jsonify({'success': False, 'message': 'Category already exists'})
+        
+        # Create category
+        category = Category(
+            user_id=current_user.id,
+            name=name,
+            parent_id=parent_id if parent_id else None,
+            color=color
+        )
+        
+        db.session.add(category)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'category': {
+                'id': category.id,
+                'name': category.name,
+                'color': category.color
+            }
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)})
 
 
 def create_default_categories(user_id):
