@@ -124,14 +124,20 @@
     </div>
 </div>
 
-<!-- Main Charts -->
+<!-- Category Breakdown Summary -->
 <div class="row mb-4">
-    <!-- Primary Chart -->
-    <div class="col-lg-6">
+    <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Expenses by Category</h5>
+                <h5 class="card-title mb-0">
+                    <i data-feather="pie-chart"></i>
+                    Spending Breakdown by Category
+                </h5>
                 <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-secondary" onclick="toggleView('category-breakdown')">
+                        <i data-feather="eye"></i>
+                        Toggle View
+                    </button>
                     <button type="button" class="btn btn-outline-secondary" onclick="animateChart('primary-chart')">
                         <i data-feather="play"></i>
                     </button>
@@ -141,12 +147,25 @@
                 </div>
             </div>
             <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="primary-chart" width="400" height="400"></canvas>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="chart-container">
+                            <canvas id="primary-chart" width="400" height="400"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="category-breakdown-list" id="category-breakdown-list">
+                            <!-- Dynamic category breakdown will be populated here -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Main Charts -->
+<div class="row mb-4">
     
     <!-- Spending Trend Chart -->
     <div class="col-lg-6">
@@ -243,7 +262,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i data-feather="palette"></i>
+                    <i data-feather="settings"></i>
                     Customize Charts
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -368,6 +387,101 @@
 
 .fun-stat-card:hover {
     transform: translateY(-5px);
+}
+
+.category-breakdown-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.category-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.category-item:last-child {
+    border-bottom: none;
+}
+
+.category-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.category-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.category-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.category-amount {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 6px;
+}
+
+.category-progress {
+    width: 100%;
+    height: 8px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.category-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px;
+    transition: width 0.8s ease;
+}
+
+.category-percentage {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #555;
+    margin-left: 8px;
+    flex-shrink: 0;
+}
+
+.breakdown-header {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.breakdown-total {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.breakdown-total h6 {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.breakdown-total h4 {
+    margin: 5px 0 0 0;
+    font-size: 1.5rem;
+    font-weight: bold;
 }
 </style>
 

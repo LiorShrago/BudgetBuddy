@@ -190,6 +190,9 @@ function updateAllCharts(data) {
         }]
     };
 
+    // Update category breakdown list
+    updateCategoryBreakdownList(data.categories, colors);
+
     // Update trend chart
     charts.trend.data = {
         labels: data.trend.labels,
@@ -236,10 +239,87 @@ function updateAllCharts(data) {
     Object.values(charts).forEach(chart => chart.update());
 }
 
+function updateCategoryBreakdownList(categoriesData, colors) {
+    const container = document.getElementById('category-breakdown-list');
+    
+    if (!categoriesData.labels || categoriesData.labels.length === 0) {
+        container.innerHTML = `
+            <div class="breakdown-header">No spending data available</div>
+            <div class="text-center text-muted">
+                <i data-feather="inbox" style="width: 48px; height: 48px;"></i>
+                <p>Upload transactions to see category breakdown</p>
+            </div>
+        `;
+        feather.replace();
+        return;
+    }
+
+    const total = categoriesData.values.reduce((sum, value) => sum + value, 0);
+    
+    let html = `
+        <div class="breakdown-header">Category Breakdown</div>
+        <div class="breakdown-total">
+            <h6>Total Expenses</h6>
+            <h4>$${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h4>
+        </div>
+    `;
+
+    categoriesData.labels.forEach((label, index) => {
+        const value = categoriesData.values[index];
+        const percentage = ((value / total) * 100).toFixed(1);
+        const color = colors[index];
+
+        html += `
+            <div class="category-item">
+                <div class="category-color" style="background-color: ${color};"></div>
+                <div class="category-info">
+                    <div class="category-name">${label}</div>
+                    <div class="category-amount">$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                    <div class="category-progress">
+                        <div class="category-progress-bar" style="width: ${percentage}%; background-color: ${color};"></div>
+                    </div>
+                </div>
+                <div class="category-percentage">${percentage}%</div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+    
+    // Animate progress bars
+    setTimeout(() => {
+        const progressBars = container.querySelectorAll('.category-progress-bar');
+        progressBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 100);
+        });
+    }, 200);
+}
+
 function updatePrimaryChart() {
     const chartType = document.getElementById('chart-type').value;
     charts.primary.config.type = chartType;
     charts.primary.update();
+}
+
+function toggleView(viewType) {
+    if (viewType === 'category-breakdown') {
+        const chart = document.querySelector('#primary-chart').closest('.col-lg-6');
+        const breakdown = document.querySelector('#category-breakdown-list').closest('.col-lg-6');
+        
+        if (chart.style.display === 'none') {
+            chart.style.display = 'block';
+            breakdown.classList.remove('col-lg-12');
+            breakdown.classList.add('col-lg-6');
+        } else {
+            chart.style.display = 'none';
+            breakdown.classList.remove('col-lg-6');
+            breakdown.classList.add('col-lg-12');
+        }
+    }
 }
 
 function updateSummaryCards(data) {
