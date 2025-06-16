@@ -105,7 +105,11 @@ function getChartOptions(chartType) {
                 labels: {
                     padding: 20,
                     usePointStyle: true,
-                    color: chartSettings.darkTheme ? '#fff' : '#333'
+                    color: chartSettings.darkTheme ? '#fff' : '#212529',
+                    font: {
+                        size: 12,
+                        weight: 500
+                    }
                 }
             },
             tooltip: {
@@ -126,7 +130,11 @@ function getChartOptions(chartType) {
                     color: chartSettings.darkTheme ? '#444' : '#e0e0e0'
                 },
                 ticks: {
-                    color: chartSettings.darkTheme ? '#fff' : '#333',
+                    color: chartSettings.darkTheme ? '#fff' : '#212529',
+                    font: {
+                        size: 11,
+                        weight: 500
+                    },
                     callback: function(value) {
                         return '$' + value.toLocaleString();
                     }
@@ -137,7 +145,11 @@ function getChartOptions(chartType) {
                     color: chartSettings.darkTheme ? '#444' : '#e0e0e0'
                 },
                 ticks: {
-                    color: chartSettings.darkTheme ? '#fff' : '#333'
+                    color: chartSettings.darkTheme ? '#fff' : '#212529',
+                    font: {
+                        size: 11,
+                        weight: 500
+                    }
                 }
             }
         };
@@ -307,8 +319,21 @@ function updatePrimaryChart() {
 
 function toggleView(viewType) {
     if (viewType === 'category-breakdown') {
-        const chart = document.querySelector('#primary-chart').closest('.col-lg-6');
-        const breakdown = document.querySelector('#category-breakdown-list').closest('.col-lg-6');
+        const chartElement = document.querySelector('#primary-chart');
+        const breakdownElement = document.querySelector('#category-breakdown-list');
+        
+        if (!chartElement || !breakdownElement) {
+            console.warn('Chart or breakdown elements not found');
+            return;
+        }
+        
+        const chart = chartElement.closest('.col-lg-6');
+        const breakdown = breakdownElement.closest('.col-lg-6');
+        
+        if (!chart || !breakdown) {
+            console.warn('Parent container elements not found');
+            return;
+        }
         
         if (chart.style.display === 'none') {
             chart.style.display = 'block';
