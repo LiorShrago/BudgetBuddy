@@ -56,9 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // AI Auto-categorize all transactions
     aiCategorizeAllBtn.addEventListener('click', function() {
-        if (confirm('This will automatically categorize all uncategorized transactions using AI. Continue?')) {
-            aiCategorizeAll();
-        }
+        aiCategorizeAll();
     });
     
     // AI suggest categories for selected transactions
@@ -155,21 +153,12 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.success) {
                 showAlert(`Successfully categorized ${data.count} transactions`, 'success');
-                // Update the UI
-                transactionIds.forEach(transactionId => {
-                    const row = document.querySelector(`tr[data-transaction-id="${transactionId}"]`);
-                    const categorySelect = row.querySelector('.category-select');
-                    categorySelect.value = categoryId;
-                    
-                    const saveBtn = row.querySelector('.save-category');
-                    saveBtn.classList.remove('btn-warning');
-                    saveBtn.classList.add('btn-outline-primary');
-                    saveBtn.innerHTML = '<i data-feather="save"></i>';
-                });
-                feather.replace();
-                
-                // Clear selections
                 clearAllSelections();
+                updateSelectedCount();
+                // Auto-refresh the page to show updated list
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             } else {
                 showAlert(data.message || 'Error categorizing transactions', 'error');
             }
@@ -196,11 +185,11 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                saveBtn.classList.remove('btn-warning');
-                saveBtn.classList.add('btn-outline-primary');
-                saveBtn.innerHTML = '<i data-feather="save"></i>';
-                feather.replace();
                 showAlert('Category updated successfully', 'success');
+                // Auto-refresh the page to show updated list
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             } else {
                 showAlert(data.message || 'Error updating category', 'error');
             }
@@ -285,10 +274,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function aiCategorizeAll() {
         // Show loading state
         const originalText = aiCategorizeAllBtn.innerHTML;
-        aiCategorizeAllBtn.innerHTML = '<i data-feather="loader" class="rotate"></i> Processing...';
+        aiCategorizeAllBtn.innerHTML = '<i data-feather="loader" class="rotate"></i> Getting AI suggestions...';
         aiCategorizeAllBtn.disabled = true;
         
-        fetch('/api/ai-categorize-all', {
+        fetch('/api/ai-suggest-all', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -296,12 +285,10 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                showAlert(data.message, 'success');
-                // Refresh page to show updated categorizations
-                setTimeout(() => window.location.reload(), 2000);
+            if (data.success && data.suggestions) {
+                showAISuggestionsModal(data.suggestions);
             } else {
-                showAlert(data.message || 'Error in AI categorization', 'error');
+                showAlert(data.message || 'Error getting AI suggestions', 'error');
             }
         })
         .catch(error => {
@@ -313,6 +300,134 @@ document.addEventListener('DOMContentLoaded', function() {
             aiCategorizeAllBtn.disabled = false;
             feather.replace();
         });
+    }
+    
+    function showAISuggestionsModal(suggestions) {
+        // Create modal HTML
+        const modalHTML = `
+            <div class="modal fade" id="aiSuggestionsModal" tabindex="-1">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i data-feather="zap"></i>
+                                AI Categorization Suggestions
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-info">
+                                <strong>Review AI Suggestions:</strong> You can approve, modify, or discard each suggestion below.
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Description</th>
+                                            <th>Amount</th>
+                                            <th>AI Suggestion</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="suggestions-list">
+                                        ${renderSuggestionRows(suggestions)}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="d-flex justify-content-between w-100">
+                                <div>
+                                    <button type="button" class="btn btn-outline-success" onclick="acceptAllSuggestions()">
+                                        <i data-feather="check-circle"></i>
+                                        Accept All
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger" onclick="discardAllSuggestions()">
+                                        <i data-feather="x-circle"></i>
+                                        Discard All
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-primary" onclick="applySelectedSuggestions()">
+                                        <i data-feather="save"></i>
+                                        Apply Selected
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Remove existing modal if present
+        const existingModal = document.getElementById('aiSuggestionsModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+        
+        // Add modal to page
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('aiSuggestionsModal'));
+        modal.show();
+        
+        // Replace feather icons
+        feather.replace();
+    }
+    
+    function renderSuggestionRows(suggestions) {
+        return suggestions.map(suggestion => `
+            <tr data-transaction-id="${suggestion.transaction_id}">
+                <td>${suggestion.date}</td>
+                <td>
+                    <div class="fw-semibold">${suggestion.description}</div>
+                    ${suggestion.merchant ? `<small class="text-muted">${suggestion.merchant}</small>` : ''}
+                </td>
+                <td>
+                    <span class="badge bg-${suggestion.amount >= 0 ? 'success' : 'danger'}">
+                        $${Math.abs(suggestion.amount).toFixed(2)}
+                    </span>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm suggestion-category" data-transaction-id="${suggestion.transaction_id}">
+                        <option value="">No category</option>
+                        ${renderCategoryOptions(suggestion.suggested_category_id)}
+                    </select>
+                </td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <input type="checkbox" class="btn-check suggestion-checkbox" 
+                               id="suggestion-${suggestion.transaction_id}" 
+                               data-transaction-id="${suggestion.transaction_id}" 
+                               ${suggestion.suggested_category_id ? 'checked' : ''}>
+                        <label class="btn btn-outline-success btn-sm" for="suggestion-${suggestion.transaction_id}">
+                            <i data-feather="check"></i>
+                        </label>
+                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                onclick="discardSuggestion(${suggestion.transaction_id})">
+                            <i data-feather="x"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+    
+    function renderCategoryOptions(selectedCategoryId) {
+        const categorySelects = document.querySelectorAll('.category-select');
+        if (categorySelects.length > 0) {
+            const firstSelect = categorySelects[0];
+            const options = Array.from(firstSelect.querySelectorAll('option')).map(option => {
+                const selected = option.value == selectedCategoryId ? 'selected' : '';
+                return `<option value="${option.value}" ${selected}>${option.textContent}</option>`;
+            }).join('');
+            return options;
+        }
+        return '';
     }
     
     function aiSuggestCategories(transactionIds) {
