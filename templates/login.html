@@ -14,6 +14,7 @@
             </div>
             <div class="card-body">
                 <form method="POST">
+                    {% if not show_2fa %}
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="username" name="username" required>
@@ -23,11 +24,38 @@
                         <label for="password" class="form-label">Password</label>
                         <input type="password" class="form-control" id="password" name="password" required>
                     </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i data-feather="shield"></i>
+                        Two-factor authentication required
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="totp_code" class="form-label">Authentication Code</label>
+                        <input type="text" class="form-control" id="totp_code" name="totp_code" placeholder="Enter 6-digit code from your authenticator app" maxlength="6" pattern="[0-9]{6}">
+                        <div class="form-text">Enter the 6-digit code from your authenticator app</div>
+                    </div>
+                    
+                    <div class="text-center mb-3">
+                        <button type="button" class="btn btn-link btn-sm" onclick="toggleBackupCode()">
+                            Use backup code instead
+                        </button>
+                    </div>
+                    
+                    <div class="mb-3" id="backup-code-section" style="display: none;">
+                        <label for="backup_code" class="form-label">Backup Code</label>
+                        <input type="text" class="form-control" id="backup_code" name="backup_code" placeholder="Enter backup code">
+                        <div class="form-text">Use one of your saved backup codes</div>
+                    </div>
+                    
+                    <input type="hidden" name="username" value="{{ session.get('pending_user_id') }}">
+                    <input type="hidden" name="password" value="verified">
+                    {% endif %}
                     
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">
                             <i data-feather="log-in"></i>
-                            Sign In
+                            {% if show_2fa %}Verify & Sign In{% else %}Sign In{% endif %}
                         </button>
                     </div>
                 </form>

@@ -1,4 +1,5 @@
 import os
+import secrets
 from datetime import datetime, date
 from decimal import Decimal
 from flask import render_template, request, redirect, url_for, flash, jsonify, session
@@ -7,11 +8,40 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
 from sqlalchemy import func, and_, or_
 from app import app, db
-from models import User, Account, Category, Transaction, Budget, BudgetItem, CategorizationRule
+from models import User, Account, Category, Transaction, Budget, BudgetItem, CategorizationRule, LoginAttempt
 from csv_processor import process_csv_file
 from csv_parsers import get_parser_by_format, detect_csv_format
 from categorization import auto_categorize_transaction
 from ai_categorizer import auto_categorize_uncategorized_transactions, get_categorization_suggestions
+
+
+def log_login_attempt(user_id, username, success=False, two_factor_used=False):
+    """Log login attempt for security monitoring"""
+    attempt = LoginAttempt(
+        user_id=user_id,
+        ip_address=request.remote_addr,
+        user_agent=request.headers.get('User-Agent'),
+        attempted_username=username,
+        success=success,
+        two_factor_used=two_factor_used
+    )
+    db.session.add(attempt)
+    db.session.commit()
+
+
+def validate_password_strength(password):
+    """Validate password meets security requirements"""
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters long"
+    if not any(c.isupper() for c in password):
+        return False, "Password must contain at least one uppercase letter"
+    if not any(c.islower() for c in password):
+        return False, "Password must contain at least one lowercase letter"
+    if not any(c.isdigit() for c in password):
+        return False, "Password must contain at least one number"
+    if not any(c in "!@#$%^&*()_+-=[]{}|;:,.<>?" for c in password):
+        return False, "Password must contain at least one special character"
+    return True, "Password is valid"
 
 
 @app.route('/')
@@ -28,6 +58,18 @@ def register():
         email = request.form['email']
         password = request.form['password']
         
+        # Validate password confirmation
+        confirm_password = request.form.get('confirm_password', '')
+        if password != confirm_password:
+            flash('Passwords do not match', 'error')
+            return render_template('register.html')
+        
+        # Validate password strength
+        is_valid, message = validate_password_strength(password)
+        if not is_valid:
+            flash(message, 'error')
+            return render_template('register.html')
+        
         # Check if user already exists
         if User.query.filter_by(username=username).first():
             flash('Username already exists', 'error')
@@ -38,7 +80,9 @@ def register():
             return render_template('register.html')
         
         # Create new user
-        user = User(username=username, email=email)
+        user = User()
+        user.username = username
+        user.email = email
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
@@ -57,13 +101,61 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        totp_code = request.form.get('totp_code', '')
+        backup_code = request.form.get('backup_code', '')
         
         user = User.query.filter_by(username=username).first()
         
-        if user and user.check_password(password):
-            login_user(user)
-            return redirect(url_for('dashboard'))
+        if user:
+            # Check if account is locked
+            if user.is_account_locked():
+                log_login_attempt(user.id, username, success=False)
+                flash('Account is temporarily locked due to multiple failed login attempts. Please try again later.', 'error')
+                return render_template('login.html')
+            
+            # Check password
+            if user.check_password(password):
+                # If 2FA is enabled, verify the token
+                if user.is_two_factor_enabled:
+                    two_factor_verified = False
+                    
+                    # Try TOTP code first
+                    if totp_code and user.verify_totp(totp_code):
+                        two_factor_verified = True
+                    # Try backup code if TOTP failed
+                    elif backup_code and user.verify_backup_code(backup_code):
+                        two_factor_verified = True
+                        flash('You used a backup code. Consider regenerating your backup codes.', 'warning')
+                    
+                    if not two_factor_verified and (totp_code or backup_code):
+                        user.increment_failed_login()
+                        log_login_attempt(user.id, username, success=False, two_factor_used=True)
+                        flash('Invalid two-factor authentication code', 'error')
+                        return render_template('login.html', show_2fa=True)
+                    elif not (totp_code or backup_code):
+                        # Show 2FA form
+                        session['pending_user_id'] = user.id
+                        return render_template('login.html', show_2fa=True)
+                    
+                    if two_factor_verified:
+                        user.reset_failed_login()
+                        login_user(user)
+                        log_login_attempt(user.id, username, success=True, two_factor_used=True)
+                        return redirect(url_for('dashboard'))
+                else:
+                    # No 2FA required
+                    user.reset_failed_login()
+                    login_user(user)
+                    log_login_attempt(user.id, username, success=True)
+                    return redirect(url_for('dashboard'))
+            else:
+                # Invalid password
+                user.increment_failed_login()
+                log_login_attempt(user.id, username, success=False)
+                flash('Invalid username or password', 'error')
         else:
+            # User not found
+            log_login_attempt(None, username, success=False)
             flash('Invalid username or password', 'error')
     
     return render_template('login.html')
@@ -74,6 +166,112 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+
+@app.route('/security', methods=['GET', 'POST'])
+@login_required
+def security_settings():
+    return render_template('security.html', user=current_user)
+
+
+@app.route('/setup-2fa', methods=['GET', 'POST'])
+@login_required
+def setup_2fa():
+    if request.method == 'POST':
+        totp_code = request.form.get('totp_code')
+        
+        if not current_user.totp_secret:
+            flash('No 2FA setup in progress', 'error')
+            return redirect(url_for('security_settings'))
+        
+        if current_user.verify_totp(totp_code):
+            backup_codes = current_user.generate_backup_codes()
+            current_user.enable_two_factor()
+            
+            return render_template('2fa_backup_codes.html', backup_codes=backup_codes)
+        else:
+            flash('Invalid code. Please try again.', 'error')
+    
+    # Generate new secret if not exists
+    if not current_user.totp_secret:
+        current_user.generate_totp_secret()
+        db.session.commit()
+    
+    qr_code = current_user.generate_qr_code()
+    return render_template('setup_2fa.html', 
+                         totp_secret=current_user.totp_secret,
+                         qr_code=qr_code)
+
+
+@app.route('/disable-2fa', methods=['POST'])
+@login_required
+def disable_2fa():
+    password = request.form.get('password')
+    
+    if not current_user.check_password(password):
+        flash('Invalid password', 'error')
+        return redirect(url_for('security_settings'))
+    
+    current_user.disable_two_factor()
+    flash('Two-factor authentication has been disabled', 'success')
+    return redirect(url_for('security_settings'))
+
+
+@app.route('/regenerate-backup-codes', methods=['POST'])
+@login_required
+def regenerate_backup_codes():
+    password = request.form.get('password')
+    
+    if not current_user.check_password(password):
+        flash('Invalid password', 'error')
+        return redirect(url_for('security_settings'))
+    
+    if not current_user.is_two_factor_enabled:
+        flash('Two-factor authentication is not enabled', 'error')
+        return redirect(url_for('security_settings'))
+    
+    backup_codes = current_user.generate_backup_codes()
+    db.session.commit()
+    
+    return render_template('2fa_backup_codes.html', backup_codes=backup_codes)
+
+
+@app.route('/change-password', methods=['POST'])
+@login_required
+def change_password():
+    current_password = request.form.get('current_password')
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+    
+    if not current_user.check_password(current_password):
+        flash('Current password is incorrect', 'error')
+        return redirect(url_for('security_settings'))
+    
+    if new_password != confirm_password:
+        flash('New passwords do not match', 'error')
+        return redirect(url_for('security_settings'))
+    
+    is_valid, message = validate_password_strength(new_password)
+    if not is_valid:
+        flash(message, 'error')
+        return redirect(url_for('security_settings'))
+    
+    current_user.set_password(new_password)
+    db.session.commit()
+    
+    flash('Password updated successfully', 'success')
+    return redirect(url_for('security_settings'))
+
+
+@app.route('/security-log')
+@login_required
+def security_log():
+    # Get recent login attempts for current user
+    attempts = LoginAttempt.query.filter_by(user_id=current_user.id)\
+                                .order_by(LoginAttempt.created_at.desc())\
+                                .limit(50).all()
+    
+    return render_template('security_log.html', attempts=attempts)
 
 
 @app.route('/dashboard')
