@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Budget Tracker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-4">
+                <i data-feather="dollar-sign" class="text-primary"></i>
+                Budget Tracker
+            </h1>
+            <p class="lead">Take control of your finances with intelligent transaction categorization and comprehensive budget management.</p>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i data-feather="upload" class="text-primary mb-3" style="width: 48px; height: 48px;"></i>
+                        <h5 class="card-title">CSV Import</h5>
+                        <p class="card-text">Upload transactions from your bank with intelligent column mapping and duplicate detection.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i data-feather="tag" class="text-success mb-3" style="width: 48px; height: 48px;"></i>
+                        <h5 class="card-title">Smart Categorization</h5>
+                        <p class="card-text">Automatic transaction categorization with machine learning that improves over time.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i data-feather="pie-chart" class="text-info mb-3" style="width: 48px; height: 48px;"></i>
+                        <h5 class="card-title">Visual Analytics</h5>
+                        <p class="card-text">Beautiful charts and insights to understand your spending patterns and budget progress.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i data-feather="user-plus"></i>
+                            New User?
+                        </h5>
+                        <p class="card-text">Create an account to start tracking your expenses and managing your budget effectively.</p>
+                        <a href="{{ url_for('register') }}" class="btn btn-primary">
+                            <i data-feather="user-plus"></i>
+                            Register Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i data-feather="log-in"></i>
+                            Existing User?
+                        </h5>
+                        <p class="card-text">Sign in to access your dashboard, view transactions, and manage your budgets.</p>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary">
+                            <i data-feather="log-in"></i>
+                            Sign In
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

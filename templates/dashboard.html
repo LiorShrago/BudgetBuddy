@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Budget Tracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i data-feather="home"></i>
+        Dashboard
+    </h1>
+    <div class="text-muted">
+        Welcome back, {{ current_user.username }}!
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Total Balance</h5>
+                        <h2 class="mb-0">${{ "%.2f"|format(total_balance) }}</h2>
+                    </div>
+                    <i data-feather="dollar-sign" style="width: 48px; height: 48px;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Active Accounts</h5>
+                        <h2 class="mb-0">{{ total_accounts }}</h2>
+                    </div>
+                    <i data-feather="credit-card" style="width: 48px; height: 48px;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">This Month</h5>
+                        <h2 class="mb-0">
+                            ${{ "%.2f"|format(spending_by_category|sum(attribute=1) or 0) }}
+                        </h2>
+                    </div>
+                    <i data-feather="trending-down" style="width: 48px; height: 48px;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts and Recent Transactions -->
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="pie-chart"></i>
+                    Spending by Category (This Month)
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="spendingChart" style="max-height: 400px;"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="clock"></i>
+                    Recent Transactions
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_transactions %}
+                    <div class="list-group list-group-flush">
+                        {% for transaction in recent_transactions %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <div>
+                                <div class="fw-bold">{{ transaction.description[:30] }}{% if transaction.description|length > 30 %}...{% endif %}</div>
+                                <small class="text-muted">{{ transaction.date.strftime('%m/%d/%Y') }}</small>
+                            </div>
+                            <span class="badge bg-{{ 'danger' if transaction.transaction_type == 'expense' else 'success' }}">
+                                {{ '-' if transaction.transaction_type == 'expense' else '+' }}${{ "%.2f"|format(transaction.amount) }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('transactions') }}" class="btn btn-outline-primary btn-sm">
+                            <i data-feather="list"></i>
+                            View All Transactions
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i data-feather="inbox" class="text-muted mb-3" style="width: 48px; height: 48px;"></i>
+                        <p class="text-muted">No transactions yet</p>
+                        <a href="{{ url_for('upload') }}" class="btn btn-primary btn-sm">
+                            <i data-feather="upload"></i>
+                            Import Transactions
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-3 mt-4">
+    <div class="col-md-3">
+        <a href="{{ url_for('upload') }}" class="btn btn-outline-primary w-100">
+            <i data-feather="upload"></i>
+            Import CSV
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="{{ url_for('accounts') }}" class="btn btn-outline-secondary w-100">
+            <i data-feather="credit-card"></i>
+            Manage Accounts
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="{{ url_for('budgets') }}" class="btn btn-outline-info w-100">
+            <i data-feather="target"></i>
+            Create Budget
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="{{ url_for('categories') }}" class="btn btn-outline-warning w-100">
+            <i data-feather="tag"></i>
+            Manage Categories
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Budgets - Budget Tracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i data-feather="target"></i>
+        Budgets
+    </h1>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBudgetModal">
+        <i data-feather="plus"></i>
+        Create Budget
+    </button>
+</div>
+
+<div class="row g-4">
+    {% if budgets %}
+        {% for budget in budgets %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title">{{ budget.name }}</h5>
+                        <span class="badge bg-{{ 'success' if budget.is_active else 'secondary' }}">
+                            {{ 'Active' if budget.is_active else 'Inactive' }}
+                        </span>
+                    </div>
+                    
+                    <h3 class="text-primary mb-3">${{ "%.2f"|format(budget.total_budget) }}</h3>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between text-muted small mb-1">
+                            <span>Period: {{ budget.period_type|title }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted small">
+                            <span>{{ budget.start_date.strftime('%m/%d/%Y') }}</span>
+                            <span>{{ budget.end_date.strftime('%m/%d/%Y') }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress bar placeholder -->
+                    <div class="progress mb-2">
+                        <div class="progress-bar" role="progressbar" style="width: 65%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted small">
+                        <span>$0.00 spent</span>
+                        <span>65% remaining</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i data-feather="target" class="text-muted mb-3" style="width: 64px; height: 64px;"></i>
+                    <h4>No Budgets Yet</h4>
+                    <p class="text-muted">Create your first budget to start tracking your spending goals and financial targets.</p>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBudgetModal">
+                        <i data-feather="plus"></i>
+                        Create Your First Budget
+                    </button>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Add Budget Modal -->
+<div class="modal fade" id="addBudgetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i data-feather="plus"></i>
+                    Create New Budget
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_budget') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Budget Name</label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="e.g., Monthly Expenses" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="period_type" class="form-label">Period Type</label>
+                        <select class="form-select" id="period_type" name="period_type" required>
+                            <option value="">Choose period...</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="start_date" class="form-label">Start Date</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="end_date" class="form-label">End Date</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="total_budget" class="form-label">Total Budget Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="total_budget" name="total_budget" step="0.01" placeholder="0.00" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i data-feather="plus"></i>
+                        Create Budget
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

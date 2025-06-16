@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Transactions - Budget Tracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i data-feather="list"></i>
+        Transactions
+    </h1>
+    <a href="{{ url_for('upload') }}" class="btn btn-primary">
+        <i data-feather="upload"></i>
+        Import CSV
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i data-feather="filter"></i>
+            Filters
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label for="category" class="form-label">Category</label>
+                <select class="form-select" id="category" name="category">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {% if request.args.get('category') == category.id|string %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-3">
+                <label for="account" class="form-label">Account</label>
+                <select class="form-select" id="account" name="account">
+                    <option value="">All Accounts</option>
+                    {% for account in accounts %}
+                    <option value="{{ account.id }}" {% if request.args.get('account') == account.id|string %}selected{% endif %}>
+                        {{ account.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-2">
+                <label for="date_from" class="form-label">From Date</label>
+                <input type="date" class="form-control" id="date_from" name="date_from" value="{{ request.args.get('date_from', '') }}">
+            </div>
+            
+            <div class="col-md-2">
+                <label for="date_to" class="form-label">To Date</label>
+                <input type="date" class="form-control" id="date_to" name="date_to" value="{{ request.args.get('date_to', '') }}">
+            </div>
+            
+            <div class="col-md-2 d-flex align-items-end">
+                <div class="w-100">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i data-feather="search"></i>
+                        Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Transactions Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            Transaction History
+            {% if transactions.total %}
+                <span class="badge bg-secondary">{{ transactions.total }} total</span>
+            {% endif %}
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        {% if transactions.items %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Account</th>
+                        <th>Amount</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions.items %}
+                    <tr>
+                        <td>{{ transaction.date.strftime('%m/%d/%Y') }}</td>
+                        <td>
+                            <div>{{ transaction.description }}</div>
+                            {% if transaction.merchant %}
+                            <small class="text-muted">{{ transaction.merchant }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if transaction.category %}
+                            <span class="badge" style="background-color: {{ transaction.category.color }};">
+                                {{ transaction.category.name }}
+                            </span>
+                            {% else %}
+                            <span class="badge bg-secondary">Uncategorized</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ transaction.account.name }}</td>
+                        <td>
+                            <span class="fw-bold text-{{ 'danger' if transaction.transaction_type == 'expense' else 'success' }}">
+                                {{ '-' if transaction.transaction_type == 'expense' else '+' }}${{ "%.2f"|format(transaction.amount) }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'danger' if transaction.transaction_type == 'expense' else 'success' }}">
+                                {{ transaction.transaction_type|title }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if transactions.pages > 1 %}
+        <div class="card-footer">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    {% if transactions.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('transactions', page=transactions.prev_num, **request.args) }}">Previous</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in transactions.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != transactions.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('transactions', page=page_num, **request.args) }}">{{ page_num }}</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if transactions.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('transactions', page=transactions.next_num, **request.args) }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="text-center py-5">
+            <i data-feather="inbox" class="text-muted mb-3" style="width: 64px; height: 64px;"></i>
+            <h4>No Transactions Found</h4>
+            <p class="text-muted">No transactions match your current filters, or you haven't imported any transactions yet.</p>
+            <a href="{{ url_for('upload') }}" class="btn btn-primary">
+                <i data-feather="upload"></i>
+                Import Transactions
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
