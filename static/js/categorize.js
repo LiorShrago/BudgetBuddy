@@ -369,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const saveBtn = row.querySelector('.save-category');
                 saveBtn.classList.remove('btn-outline-primary');
                 saveBtn.classList.add('btn-warning');
-                saveBtn.innerHTML = '<i data-feather="lightbulb"></i>';
+                saveBtn.innerHTML = '<i data-feather="sun"></i>';
                 saveBtn.title = `AI suggests: ${suggestion.category_name}`;
             }
         });

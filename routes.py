@@ -527,6 +527,183 @@ def ai_suggest_categories():
         return jsonify({'success': False, 'message': str(e)})
 
 
+@app.route('/visualizations')
+@login_required
+def visualizations():
+    """Expense visualization dashboard"""
+    accounts = Account.query.filter_by(user_id=current_user.id).order_by(Account.name).all()
+    return render_template('visualizations.html', accounts=accounts)
+
+
+@app.route('/api/visualization-data')
+@login_required
+def visualization_data():
+    """Get data for expense visualizations"""
+    try:
+        period = request.args.get('period', 'last_365')
+        account_id = request.args.get('account', '')
+        start_date = request.args.get('start_date', '')
+        end_date = request.args.get('end_date', '')
+        
+        # Build base query
+        query = Transaction.query.join(Account).filter(
+            Account.user_id == current_user.id,
+            Transaction.transaction_type == 'expense'
+        )
+        
+        # Apply date filters
+        from datetime import datetime, timedelta
+        
+        if period == 'custom' and start_date and end_date:
+            query = query.filter(
+                Transaction.date >= datetime.strptime(start_date, '%Y-%m-%d').date(),
+                Transaction.date <= datetime.strptime(end_date, '%Y-%m-%d').date()
+            )
+        elif period != 'all':
+            days_map = {
+                'last_30': 30,
+                'last_90': 90,
+                'last_180': 180,
+                'last_365': 365
+            }
+            if period in days_map:
+                cutoff_date = datetime.now().date() - timedelta(days=days_map[period])
+                query = query.filter(Transaction.date >= cutoff_date)
+        
+        # Apply account filter
+        if account_id:
+            query = query.filter(Transaction.account_id == account_id)
+        
+        transactions = query.all()
+        
+        # Process data for different chart types
+        data = {
+            'categories': get_category_breakdown(transactions),
+            'trend': get_spending_trend(transactions),
+            'monthly': get_monthly_comparison(transactions),
+            'accounts': get_account_distribution(transactions),
+            'summary': get_summary_stats(transactions)
+        }
+        
+        return jsonify({'success': True, 'data': data})
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
+
+def get_category_breakdown(transactions):
+    """Get spending breakdown by category"""
+    category_totals = {}
+    
+    for transaction in transactions:
+        category_name = transaction.category.name if transaction.category else 'Uncategorized'
+        category_totals[category_name] = category_totals.get(category_name, 0) + float(transaction.amount)
+    
+    # Sort by amount
+    sorted_categories = sorted(category_totals.items(), key=lambda x: x[1], reverse=True)
+    
+    return {
+        'labels': [item[0] for item in sorted_categories],
+        'values': [item[1] for item in sorted_categories]
+    }
+
+
+def get_spending_trend(transactions):
+    """Get daily spending trend"""
+    from collections import defaultdict
+    
+    daily_totals = defaultdict(float)
+    
+    for transaction in transactions:
+        date_str = transaction.date.strftime('%Y-%m-%d')
+        daily_totals[date_str] += float(transaction.amount)
+    
+    # Sort by date
+    sorted_days = sorted(daily_totals.items())
+    
+    return {
+        'labels': [item[0] for item in sorted_days],
+        'values': [item[1] for item in sorted_days]
+    }
+
+
+def get_monthly_comparison(transactions):
+    """Get monthly spending comparison"""
+    from collections import defaultdict
+    
+    monthly_totals = defaultdict(float)
+    
+    for transaction in transactions:
+        month_key = transaction.date.strftime('%Y-%m')
+        monthly_totals[month_key] += float(transaction.amount)
+    
+    # Sort by month
+    sorted_months = sorted(monthly_totals.items())
+    
+    # Convert to readable month names
+    labels = []
+    for month_key, _ in sorted_months:
+        month_date = datetime.strptime(month_key, '%Y-%m')
+        labels.append(month_date.strftime('%b %Y'))
+    
+    return {
+        'labels': labels,
+        'values': [item[1] for item in sorted_months]
+    }
+
+
+def get_account_distribution(transactions):
+    """Get spending distribution by account"""
+    account_totals = {}
+    
+    for transaction in transactions:
+        account_name = transaction.account.name
+        account_totals[account_name] = account_totals.get(account_name, 0) + float(transaction.amount)
+    
+    # Sort by amount
+    sorted_accounts = sorted(account_totals.items(), key=lambda x: x[1], reverse=True)
+    
+    return {
+        'labels': [item[0] for item in sorted_accounts],
+        'values': [item[1] for item in sorted_accounts]
+    }
+
+
+def get_summary_stats(transactions):
+    """Get summary statistics"""
+    if not transactions:
+        return {
+            'total': 0,
+            'avgMonthly': 0,
+            'topCategory': None,
+            'topCategoryAmount': 0,
+            'categoriesCount': 0
+        }
+    
+    total = sum(float(t.amount) for t in transactions)
+    
+    # Calculate average monthly (assume 30-day months)
+    date_range = (max(t.date for t in transactions) - min(t.date for t in transactions)).days
+    months = max(1, date_range / 30)
+    avg_monthly = total / months
+    
+    # Top category
+    category_breakdown = get_category_breakdown(transactions)
+    top_category = category_breakdown['labels'][0] if category_breakdown['labels'] else None
+    top_category_amount = category_breakdown['values'][0] if category_breakdown['values'] else 0
+    
+    # Categories count
+    categories_used = set(t.category.name if t.category else 'Uncategorized' for t in transactions)
+    
+    return {
+        'total': total,
+        'avgMonthly': avg_monthly,
+        'topCategory': top_category,
+        'topCategoryAmount': top_category_amount,
+        'categoriesCount': len(categories_used)
+    }
+
+
 def create_default_categories(user_id):
     """Create default categories for new users"""
     default_categories = [
