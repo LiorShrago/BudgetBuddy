@@ -64,14 +64,35 @@
 <div class="row g-4">
     <div class="col-lg-8">
         <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">
                     <i data-feather="pie-chart"></i>
-                    Spending by Category (This Month)
+                    Spending Breakdown by Category (This Month)
                 </h5>
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-secondary" onclick="toggleDashboardView()">
+                        <i data-feather="eye"></i>
+                        Toggle View
+                    </button>
+                    <a href="{{ url_for('visualizations') }}" class="btn btn-outline-primary btn-sm">
+                        <i data-feather="bar-chart-2"></i>
+                        Full Analytics
+                    </a>
+                </div>
             </div>
             <div class="card-body">
-                <canvas id="spendingChart" style="max-height: 400px;"></canvas>
+                <div class="row">
+                    <div class="col-lg-6" id="dashboard-chart-container">
+                        <div class="chart-container" style="height: 350px;">
+                            <canvas id="spendingChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-6" id="dashboard-breakdown-container">
+                        <div class="category-breakdown-list" id="dashboard-category-breakdown">
+                            <!-- Dynamic category breakdown will be populated here -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -151,5 +172,112 @@
 {% endblock %}
 
 {% block scripts %}
+<style>
+.category-breakdown-list {
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.category-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.category-item:last-child {
+    border-bottom: none;
+}
+
+.category-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.category-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.category-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 3px;
+    font-size: 0.9rem;
+}
+
+.category-amount {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.category-progress {
+    width: 100%;
+    height: 6px;
+    background-color: #f0f0f0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.category-progress-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+}
+
+.category-percentage {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #555;
+    margin-left: 8px;
+    flex-shrink: 0;
+}
+
+.breakdown-header {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+    text-align: center;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.breakdown-total {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.breakdown-total h6 {
+    margin: 0;
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+.breakdown-total h5 {
+    margin: 3px 0 0 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.chart-container {
+    position: relative;
+}
+
+.chart-container canvas {
+    max-height: 100%;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}

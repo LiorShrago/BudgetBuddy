@@ -17,18 +17,30 @@ function initializeSpendingChart() {
         .then(data => {
             if (data.labels.length === 0) {
                 // Show no data message
-                ctx.parentElement.innerHTML = `
+                const chartContainer = document.getElementById('dashboard-chart-container');
+                const breakdownContainer = document.getElementById('dashboard-breakdown-container');
+                
+                chartContainer.innerHTML = `
                     <div class="text-center py-5">
                         <i data-feather="pie-chart" class="text-muted mb-3" style="width: 48px; height: 48px;"></i>
                         <h6>No Spending Data</h6>
-                        <p class="text-muted">Start importing transactions to see your spending breakdown.</p>
+                        <p class="text-muted">Import transactions to see breakdown.</p>
                     </div>
                 `;
+                
+                breakdownContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <i data-feather="inbox" class="text-muted mb-3" style="width: 48px; height: 48px;"></i>
+                        <p class="text-muted">Category breakdown will appear here</p>
+                    </div>
+                `;
+                
                 feather.replace();
                 return;
             }
             
-            new Chart(ctx, {
+            // Create chart
+            const chart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: data.labels,
@@ -36,7 +48,8 @@ function initializeSpendingChart() {
                         data: data.data,
                         backgroundColor: data.colors,
                         borderWidth: 2,
-                        borderColor: 'rgba(255, 255, 255, 0.1)'
+                        borderColor: '#fff',
+                        hoverOffset: 8
                     }]
                 },
                 options: {
@@ -44,14 +57,14 @@ function initializeSpendingChart() {
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                usePointStyle: true,
-                                color: '#ffffff'
-                            }
+                            display: false  // We'll show the legend in the breakdown list
                         },
                         tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#fff',
+                            borderWidth: 1,
                             callbacks: {
                                 label: function(context) {
                                     const value = context.raw;
@@ -64,18 +77,93 @@ function initializeSpendingChart() {
                     }
                 }
             });
+            
+            // Update breakdown list
+            updateDashboardCategoryBreakdown(data);
         })
         .catch(error => {
             console.error('Error fetching chart data:', error);
-            ctx.parentElement.innerHTML = `
+            const chartContainer = document.getElementById('dashboard-chart-container');
+            const breakdownContainer = document.getElementById('dashboard-breakdown-container');
+            
+            chartContainer.innerHTML = `
                 <div class="text-center py-5">
                     <i data-feather="alert-circle" class="text-warning mb-3" style="width: 48px; height: 48px;"></i>
                     <h6>Error Loading Chart</h6>
                     <p class="text-muted">Unable to load spending data.</p>
                 </div>
             `;
+            
+            breakdownContainer.innerHTML = `
+                <div class="text-center py-5">
+                    <i data-feather="alert-circle" class="text-warning mb-3" style="width: 48px; height: 48px;"></i>
+                    <p class="text-muted">Unable to load breakdown data.</p>
+                </div>
+            `;
+            
             feather.replace();
         });
+}
+
+function updateDashboardCategoryBreakdown(data) {
+    const container = document.getElementById('dashboard-category-breakdown');
+    
+    const total = data.data.reduce((sum, value) => sum + value, 0);
+    
+    let html = `
+        <div class="breakdown-header">This Month's Spending</div>
+        <div class="breakdown-total">
+            <h6>Total Expenses</h6>
+            <h5>$${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h5>
+        </div>
+    `;
+
+    data.labels.forEach((label, index) => {
+        const value = data.data[index];
+        const percentage = ((value / total) * 100).toFixed(1);
+        const color = data.colors[index];
+
+        html += `
+            <div class="category-item">
+                <div class="category-color" style="background-color: ${color};"></div>
+                <div class="category-info">
+                    <div class="category-name">${label}</div>
+                    <div class="category-amount">$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                    <div class="category-progress">
+                        <div class="category-progress-bar" style="width: 0%; background-color: ${color};"></div>
+                    </div>
+                </div>
+                <div class="category-percentage">${percentage}%</div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+    
+    // Animate progress bars
+    setTimeout(() => {
+        const progressBars = container.querySelectorAll('.category-progress-bar');
+        data.labels.forEach((label, index) => {
+            const value = data.data[index];
+            const percentage = ((value / total) * 100).toFixed(1);
+            progressBars[index].style.width = percentage + '%';
+        });
+    }, 300);
+}
+
+function toggleDashboardView() {
+    const chartContainer = document.getElementById('dashboard-chart-container');
+    const breakdownContainer = document.getElementById('dashboard-breakdown-container');
+    
+    if (chartContainer.style.display === 'none') {
+        chartContainer.style.display = 'block';
+        breakdownContainer.classList.remove('col-lg-12');
+        breakdownContainer.classList.add('col-lg-6');
+    } else {
+        chartContainer.style.display = 'none';
+        breakdownContainer.classList.remove('col-lg-6');
+        breakdownContainer.classList.add('col-lg-12');
+    }
 }
 
 // Utility function to format currency
