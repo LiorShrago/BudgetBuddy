@@ -568,7 +568,7 @@ window.applySelectedSuggestions = function() {
     });
     
     if (selectedSuggestions.length === 0) {
-        showAlert('No suggestions selected to apply', 'warning');
+        alert('No suggestions selected to apply');
         return;
     }
     
@@ -583,18 +583,23 @@ window.applySelectedSuggestions = function() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showAlert(`Successfully applied ${data.count} categorizations`, 'success');
-            // Hide modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('aiSuggestionsModal'));
-            modal.hide();
-            // Refresh page
-            setTimeout(() => window.location.reload(), 1000);
+            // Hide modal first
+            const modalElement = document.getElementById('aiSuggestionsModal');
+            if (modalElement) {
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
+            }
+            // Show success message and refresh page
+            alert(`Successfully applied ${data.count} categorizations`);
+            window.location.reload();
         } else {
-            showAlert(data.message || 'Error applying suggestions', 'error');
+            alert(data.message || 'Error applying suggestions');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showAlert('Error applying suggestions', 'error');
+        alert('Error applying suggestions');
     });
 };
