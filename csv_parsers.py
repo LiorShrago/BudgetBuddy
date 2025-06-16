@@ -306,7 +306,7 @@ class SimpliiParser(CSVParser):
                     
                     # Description
                     description = str(row['Transaction Details']).strip()
-                    if not description or description == 'nan':
+                    if not description or description == 'nan' or description == 'Transaction Details':
                         continue
                     
                     # Simplii has separate Funds Out and Funds In columns
