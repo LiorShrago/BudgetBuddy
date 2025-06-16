@@ -129,7 +129,7 @@ class User(UserMixin, db.Model):
         if not uri:
             return None
         
-        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr = qrcode.main.QRCode(version=1, box_size=10, border=5)
         qr.add_data(uri)
         qr.make(fit=True)
         

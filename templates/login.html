@@ -73,4 +73,24 @@
         </div>
     </div>
 </div>
+
+<script>
+function toggleBackupCode() {
+    const backupSection = document.getElementById('backup-code-section');
+    const totpCode = document.getElementById('totp_code');
+    const backupCode = document.getElementById('backup_code');
+    
+    if (backupSection.style.display === 'none') {
+        backupSection.style.display = 'block';
+        totpCode.disabled = true;
+        totpCode.value = '';
+        backupCode.focus();
+    } else {
+        backupSection.style.display = 'none';
+        totpCode.disabled = false;
+        backupCode.value = '';
+        totpCode.focus();
+    }
+}
+</script>
 {% endblock %}

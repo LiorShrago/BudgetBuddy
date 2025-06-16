@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Setup Two-Factor Authentication - Budget Tracker{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">
+                        <i data-feather="shield"></i>
+                        Setup Two-Factor Authentication
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Step 1: Install an Authenticator App</h5>
+                            <p>Download and install one of these authenticator apps on your mobile device:</p>
+                            <ul>
+                                <li><strong>Google Authenticator</strong> (iOS/Android)</li>
+                                <li><strong>Microsoft Authenticator</strong> (iOS/Android)</li>
+                                <li><strong>Authy</strong> (iOS/Android/Desktop)</li>
+                                <li><strong>1Password</strong> (Premium)</li>
+                            </ul>
+                            
+                            <h5 class="mt-4">Step 2: Scan QR Code</h5>
+                            <p>Open your authenticator app and scan this QR code:</p>
+                            
+                            <div class="text-center mb-3">
+                                <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" class="img-fluid border" style="max-width: 200px;">
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <strong>Can't scan?</strong> Manually enter this secret key in your app:
+                                <br>
+                                <code>{{ totp_secret }}</code>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h5>Step 3: Verify Setup</h5>
+                            <p>Enter the 6-digit code from your authenticator app to complete setup:</p>
+                            
+                            <form method="POST">
+                                <div class="mb-3">
+                                    <label for="totp_code" class="form-label">Authentication Code</label>
+                                    <input type="text" class="form-control form-control-lg text-center" 
+                                           id="totp_code" name="totp_code" required 
+                                           maxlength="6" pattern="[0-9]{6}" 
+                                           placeholder="000000" style="font-family: monospace; letter-spacing: 0.5em;">
+                                    <div class="form-text">Enter the 6-digit code from your authenticator app</div>
+                                </div>
+                                
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i data-feather="check"></i>
+                                        Enable Two-Factor Authentication
+                                    </button>
+                                    <a href="{{ url_for('security_settings') }}" class="btn btn-secondary">
+                                        <i data-feather="arrow-left"></i>
+                                        Cancel
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="alert alert-warning">
+                        <h6><i data-feather="alert-triangle"></i> Important Security Notes:</h6>
+                        <ul class="mb-0">
+                            <li>Keep your mobile device secure and protected with a screen lock</li>
+                            <li>Don't share your authenticator app or secret key with anyone</li>
+                            <li>You'll receive backup codes after enabling 2FA - store them safely</li>
+                            <li>If you lose access to your authenticator app, you can use backup codes to regain access</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-focus on the code input
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('totp_code').focus();
+});
+
+// Auto-submit when 6 digits are entered
+document.getElementById('totp_code').addEventListener('input', function(e) {
+    if (e.target.value.length === 6 && /^[0-9]{6}$/.test(e.target.value)) {
+        // Optional: auto-submit after a short delay
+        setTimeout(() => {
+            if (e.target.value.length === 6) {
+                e.target.form.submit();
+            }
+        }, 500);
+    }
+});
+</script>
+{% endblock %}

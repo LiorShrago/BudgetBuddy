@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Backup Codes - Budget Tracker{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">
+                        <i data-feather="key"></i>
+                        Two-Factor Authentication Backup Codes
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <i data-feather="check-circle"></i>
+                        Two-factor authentication has been successfully enabled!
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <h6><i data-feather="alert-triangle"></i> Important: Save These Backup Codes</h6>
+                        <p class="mb-0">These backup codes can be used to access your account if you lose your authenticator device. Each code can only be used once.</p>
+                    </div>
+                    
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title">Your Backup Codes</h6>
+                            <div class="row">
+                                {% for code in backup_codes %}
+                                <div class="col-md-6 mb-2">
+                                    <code class="d-block p-2 bg-white border rounded text-center" style="font-family: monospace; font-size: 1.1em;">{{ code }}</code>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center my-4">
+                        <button onclick="printCodes()" class="btn btn-outline-primary me-2">
+                            <i data-feather="printer"></i>
+                            Print Codes
+                        </button>
+                        <button onclick="downloadCodes()" class="btn btn-outline-secondary me-2">
+                            <i data-feather="download"></i>
+                            Download as Text
+                        </button>
+                        <button onclick="copyCodes()" class="btn btn-outline-info">
+                            <i data-feather="copy"></i>
+                            Copy to Clipboard
+                        </button>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <h6><i data-feather="info"></i> Storage Recommendations:</h6>
+                        <ul class="mb-0">
+                            <li>Print these codes and store them in a secure location</li>
+                            <li>Save them in a password manager</li>
+                            <li>Store them separately from your authenticator device</li>
+                            <li>Do not store them in plain text on your computer</li>
+                            <li>You can regenerate new codes anytime from Security Settings</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <a href="{{ url_for('security_settings') }}" class="btn btn-primary">
+                            <i data-feather="arrow-left"></i>
+                            Return to Security Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function printCodes() {
+    const codes = [{% for code in backup_codes %}'{{ code }}'{% if not loop.last %}, {% endif %}{% endfor %}];
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Budget Tracker - Backup Codes</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { text-align: center; margin-bottom: 30px; }
+                .codes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+                .code { font-family: monospace; font-size: 16px; padding: 10px; border: 1px solid #ccc; text-align: center; }
+                .warning { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; margin: 20px 0; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h2>Budget Tracker - Two-Factor Authentication Backup Codes</h2>
+                <p>Generated: ${new Date().toLocaleDateString()}</p>
+            </div>
+            <div class="warning">
+                <strong>Important:</strong> These codes can be used to access your account if you lose your authenticator device. 
+                Each code can only be used once. Store them in a secure location.
+            </div>
+            <div class="codes">
+                ${codes.map(code => `<div class="code">${code}</div>`).join('')}
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+function downloadCodes() {
+    const codes = [{% for code in backup_codes %}'{{ code }}'{% if not loop.last %}, {% endif %}{% endfor %}];
+    const content = `Budget Tracker - Two-Factor Authentication Backup Codes
+Generated: ${new Date().toISOString()}
+
+IMPORTANT: These codes can be used to access your account if you lose your authenticator device.
+Each code can only be used once. Store them in a secure location.
+
+Backup Codes:
+${codes.map((code, index) => `${index + 1}. ${code}`).join('\n')}
+
+Storage Recommendations:
+- Print these codes and store them in a secure location
+- Save them in a password manager
+- Store them separately from your authenticator device
+- Do not store them in plain text on your computer
+- You can regenerate new codes anytime from Security Settings`;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'budget-tracker-backup-codes.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+function copyCodes() {
+    const codes = [{% for code in backup_codes %}'{{ code }}'{% if not loop.last %}, {% endif %}{% endfor %}];
+    const text = codes.join('\n');
+    
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Backup codes copied to clipboard!');
+        });
+    } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('Backup codes copied to clipboard!');
+    }
+}
+</script>
+{% endblock %}

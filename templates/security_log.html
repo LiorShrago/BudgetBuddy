@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Security Log - Budget Tracker{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i data-feather="activity"></i>
+                    Security Log
+                </h2>
+                <a href="{{ url_for('security_settings') }}" class="btn btn-outline-secondary">
+                    <i data-feather="arrow-left"></i>
+                    Back to Security Settings
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Login Attempts</h5>
+                </div>
+                <div class="card-body">
+                    {% if attempts %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date & Time</th>
+                                        <th>Status</th>
+                                        <th>IP Address</th>
+                                        <th>2FA Used</th>
+                                        <th>User Agent</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for attempt in attempts %}
+                                    <tr>
+                                        <td>
+                                            {{ attempt.created_at.strftime('%m/%d/%Y %I:%M %p') }}
+                                        </td>
+                                        <td>
+                                            {% if attempt.success %}
+                                                <span class="badge bg-success">
+                                                    <i data-feather="check" style="width: 12px; height: 12px;"></i>
+                                                    Success
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-danger">
+                                                    <i data-feather="x" style="width: 12px; height: 12px;"></i>
+                                                    Failed
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <code>{{ attempt.ip_address or 'Unknown' }}</code>
+                                        </td>
+                                        <td>
+                                            {% if attempt.two_factor_used %}
+                                                <span class="badge bg-info">
+                                                    <i data-feather="shield" style="width: 12px; height: 12px;"></i>
+                                                    Yes
+                                                </span>
+                                            {% else %}
+                                                <span class="text-muted">No</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {% if attempt.user_agent %}
+                                                    {% set parts = attempt.user_agent.split() %}
+                                                    {% for part in parts %}
+                                                        {% if 'Chrome' in part %}
+                                                            <i data-feather="chrome" style="width: 12px; height: 12px;"></i> Chrome
+                                                            {% break %}
+                                                        {% elif 'Firefox' in part %}
+                                                            <i data-feather="firefox" style="width: 12px; height: 12px;"></i> Firefox
+                                                            {% break %}
+                                                        {% elif 'Safari' in part %}
+                                                            <i data-feather="compass" style="width: 12px; height: 12px;"></i> Safari
+                                                            {% break %}
+                                                        {% elif 'Edge' in part %}
+                                                            <i data-feather="globe" style="width: 12px; height: 12px;"></i> Edge
+                                                            {% break %}
+                                                        {% endif %}
+                                                        {% if loop.last %}
+                                                            <i data-feather="globe" style="width: 12px; height: 12px;"></i> Unknown Browser
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    <br>
+                                                    <span style="font-size: 0.85em;">{{ attempt.user_agent[:80] }}{% if attempt.user_agent|length > 80 %}...{% endif %}</span>
+                                                {% else %}
+                                                    Unknown
+                                                {% endif %}
+                                            </small>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i data-feather="clock" style="width: 48px; height: 48px;" class="text-muted mb-3"></i>
+                            <h5 class="text-muted">No login attempts found</h5>
+                            <p class="text-muted">Your login activity will appear here once you start using the application.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if attempts %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Security Insights</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-success">{{ attempts|selectattr('success')|list|length }}</h4>
+                                <small class="text-muted">Successful Logins</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-danger">{{ attempts|rejectattr('success')|list|length }}</h4>
+                                <small class="text-muted">Failed Attempts</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-info">{{ attempts|selectattr('two_factor_used')|list|length }}</h4>
+                                <small class="text-muted">Used 2FA</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-primary">{{ attempts|map(attribute='ip_address')|unique|list|length }}</h4>
+                                <small class="text-muted">Unique IPs</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h6><i data-feather="info"></i> About Security Logs</h6>
+                <ul class="mb-0">
+                    <li>We keep the last 50 login attempts for security monitoring</li>
+                    <li>Successful logins show when you properly authenticated</li>
+                    <li>Failed attempts may indicate someone trying to access your account</li>
+                    <li>If you see suspicious activity, change your password immediately</li>
+                    <li>Enable two-factor authentication for additional security</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
