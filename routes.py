@@ -322,22 +322,72 @@ def add_category():
 @app.route('/api/spending-chart')
 @login_required
 def spending_chart():
-    # Get spending data for chart
-    current_month = date.today().replace(day=1)
-    spending_data = db.session.query(
+    # Get time period parameter
+    period = request.args.get('period', 'month')
+    
+    # Calculate date range based on period
+    from datetime import datetime, timedelta
+    
+    today = date.today()
+    
+    if period == 'week':
+        # Current week (Monday to Sunday)
+        days_since_monday = today.weekday()
+        start_date = today - timedelta(days=days_since_monday)
+    elif period == 'month':
+        # Current month
+        start_date = today.replace(day=1)
+    elif period == 'year':
+        # Current year
+        start_date = today.replace(month=1, day=1)
+    elif period == 'last_30':
+        # Last 30 days
+        start_date = today - timedelta(days=30)
+    elif period == 'last_90':
+        # Last 90 days
+        start_date = today - timedelta(days=90)
+    else:
+        # Default to current month
+        start_date = today.replace(day=1)
+    
+    # Build query with date filter
+    query = db.session.query(
         Category.name,
         func.sum(Transaction.amount).label('total'),
         Category.color
     ).join(Transaction).join(Account).filter(
         Account.user_id == current_user.id,
-        Transaction.date >= current_month,
+        Transaction.date >= start_date,
         Transaction.transaction_type == 'expense'
-    ).group_by(Category.name, Category.color).all()
+    ).group_by(Category.name, Category.color)
+    
+    # Handle uncategorized transactions
+    uncategorized_query = db.session.query(
+        func.sum(Transaction.amount).label('total')
+    ).join(Account).filter(
+        Account.user_id == current_user.id,
+        Transaction.date >= start_date,
+        Transaction.transaction_type == 'expense',
+        Transaction.category_id.is_(None)
+    ).scalar()
+    
+    spending_data = query.all()
+    
+    # Prepare chart data
+    labels = [item.name for item in spending_data]
+    data = [float(item.total) for item in spending_data]
+    colors = [item.color for item in spending_data]
+    
+    # Add uncategorized transactions if any
+    if uncategorized_query and float(uncategorized_query) > 0:
+        labels.append('Uncategorized')
+        data.append(float(uncategorized_query))
+        colors.append('#6c757d')  # Gray color for uncategorized
     
     chart_data = {
-        'labels': [item.name for item in spending_data],
-        'data': [float(item.total) for item in spending_data],
-        'colors': [item.color for item in spending_data]
+        'labels': labels,
+        'data': data,
+        'colors': colors
     }
     
     return jsonify(chart_data)

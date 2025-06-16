@@ -3,16 +3,34 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize spending chart
     initializeSpendingChart();
     
+    // Setup event listeners
+    setupEventListeners();
+    
     // Update feather icons
     feather.replace();
 });
+
+function setupEventListeners() {
+    // Time period change
+    document.getElementById('dashboard-time-period').addEventListener('change', function() {
+        initializeSpendingChart();
+    });
+
+    // Refresh button
+    document.getElementById('refresh-dashboard-chart').addEventListener('click', function() {
+        initializeSpendingChart();
+    });
+}
 
 function initializeSpendingChart() {
     const ctx = document.getElementById('spendingChart');
     if (!ctx) return;
     
-    // Fetch spending data from API
-    fetch('/api/spending-chart')
+    // Get selected time period
+    const timePeriod = document.getElementById('dashboard-time-period').value;
+    
+    // Fetch spending data from API with time period
+    fetch(`/api/spending-chart?period=${timePeriod}`)
         .then(response => response.json())
         .then(data => {
             if (data.labels.length === 0) {
@@ -107,11 +125,14 @@ function initializeSpendingChart() {
 
 function updateDashboardCategoryBreakdown(data) {
     const container = document.getElementById('dashboard-category-breakdown');
+    const timePeriod = document.getElementById('dashboard-time-period').value;
     
     const total = data.data.reduce((sum, value) => sum + value, 0);
     
+    const periodText = getPeriodDisplayText(timePeriod);
+    
     let html = `
-        <div class="breakdown-header">This Month's Spending</div>
+        <div class="breakdown-header">${periodText} Spending</div>
         <div class="breakdown-total">
             <h6>Total Expenses</h6>
             <h5>$${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h5>
@@ -164,6 +185,18 @@ function toggleDashboardView() {
         breakdownContainer.classList.remove('col-lg-6');
         breakdownContainer.classList.add('col-lg-12');
     }
+}
+
+function getPeriodDisplayText(period) {
+    const periodMap = {
+        'week': 'This Week\'s',
+        'month': 'This Month\'s',
+        'year': 'This Year\'s',
+        'last_30': 'Last 30 Days\'',
+        'last_90': 'Last 3 Months\''
+    };
+    
+    return periodMap[period] || 'Current';
 }
 
 // Utility function to format currency
