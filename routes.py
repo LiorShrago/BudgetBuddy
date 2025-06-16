@@ -801,6 +801,82 @@ def create_category_api():
         return jsonify({'success': False, 'message': str(e)})
 
 
+@app.route('/api/ai-suggest-all', methods=['POST'])
+@login_required
+def ai_suggest_all():
+    """Get AI category suggestions for all uncategorized transactions"""
+    try:
+        # Get all uncategorized transactions for the user
+        uncategorized_transactions = Transaction.query.filter_by(
+            category_id=None
+        ).join(Account).filter_by(user_id=current_user.id).all()
+        
+        if not uncategorized_transactions:
+            return jsonify({'success': False, 'message': 'No uncategorized transactions found'})
+        
+        # Get AI suggestions
+        transaction_ids = [t.id for t in uncategorized_transactions]
+        suggestions_dict = get_categorization_suggestions(transaction_ids, current_user.id)
+        
+        # Format suggestions for frontend
+        suggestions = []
+        for transaction in uncategorized_transactions:
+            suggestion_info = suggestions_dict.get(transaction.id, {})
+            suggestions.append({
+                'transaction_id': transaction.id,
+                'date': transaction.date.strftime('%Y-%m-%d'),
+                'description': transaction.description,
+                'merchant': transaction.merchant,
+                'amount': float(transaction.amount),
+                'suggested_category_id': suggestion_info.get('category_id'),
+                'suggested_category_name': suggestion_info.get('category_name')
+            })
+        
+        return jsonify({
+            'success': True,
+            'suggestions': suggestions
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
+
+@app.route('/api/apply-suggestions', methods=['POST'])
+@login_required
+def apply_suggestions():
+    """Apply selected AI categorization suggestions"""
+    try:
+        data = request.get_json()
+        suggestions = data.get('suggestions', [])
+        
+        if not suggestions:
+            return jsonify({'success': False, 'message': 'No suggestions to apply'})
+        
+        count = 0
+        for suggestion in suggestions:
+            transaction_id = suggestion.get('transaction_id')
+            category_id = suggestion.get('category_id')
+            
+            if transaction_id and category_id:
+                transaction = Transaction.query.filter_by(
+                    id=transaction_id
+                ).join(Account).filter_by(user_id=current_user.id).first()
+                
+                if transaction:
+                    transaction.category_id = category_id
+                    count += 1
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'count': count,
+            'message': f'Successfully applied {count} categorizations'
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)})
+
+
 @app.route('/api/ai-categorize-all', methods=['POST'])
 @login_required
 def ai_categorize_all():

@@ -531,3 +531,70 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize feather icons
     feather.replace();
 });
+
+// Global functions for AI suggestions modal
+window.acceptAllSuggestions = function() {
+    document.querySelectorAll('.suggestion-checkbox').forEach(checkbox => {
+        checkbox.checked = true;
+    });
+};
+
+window.discardAllSuggestions = function() {
+    document.querySelectorAll('.suggestion-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+};
+
+window.discardSuggestion = function(transactionId) {
+    const checkbox = document.querySelector(`#suggestion-${transactionId}`);
+    if (checkbox) {
+        checkbox.checked = false;
+    }
+};
+
+window.applySelectedSuggestions = function() {
+    const selectedSuggestions = [];
+    document.querySelectorAll('.suggestion-checkbox:checked').forEach(checkbox => {
+        const transactionId = checkbox.dataset.transactionId;
+        const categorySelect = document.querySelector(`.suggestion-category[data-transaction-id="${transactionId}"]`);
+        const categoryId = categorySelect.value;
+        
+        if (categoryId) {
+            selectedSuggestions.push({
+                transaction_id: transactionId,
+                category_id: categoryId
+            });
+        }
+    });
+    
+    if (selectedSuggestions.length === 0) {
+        showAlert('No suggestions selected to apply', 'warning');
+        return;
+    }
+    
+    // Apply the suggestions
+    fetch('/api/apply-suggestions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ suggestions: selectedSuggestions })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(`Successfully applied ${data.count} categorizations`, 'success');
+            // Hide modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('aiSuggestionsModal'));
+            modal.hide();
+            // Refresh page
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showAlert(data.message || 'Error applying suggestions', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Error applying suggestions', 'error');
+    });
+};
