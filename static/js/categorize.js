@@ -394,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </td>
                 <td>
                     <select class="form-select form-select-sm suggestion-category" data-transaction-id="${suggestion.transaction_id}">
-                        <option value="">No category</option>
+                        <option value="">Uncategorized</option>
                         ${renderCategoryOptions(suggestion.suggested_category_id)}
                     </select>
                 </td>
