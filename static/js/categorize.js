@@ -136,68 +136,42 @@ document.addEventListener('DOMContentLoaded', function() {
             .map(checkbox => checkbox.value);
     }
     
-    function bulkCategorizeTransactions(transactionIds, categoryId) {
-        const data = {
-            transaction_ids: transactionIds,
-            category_id: categoryId
-        };
-        
-        fetch('/api/bulk-categorize', {
+    // Helper function for API requests with consistent error handling
+    function makeApiRequest(url, data, successMessage, onSuccess = null) {
+        return fetch(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         })
         .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showAlert(`Successfully categorized ${data.count} transactions`, 'success');
-                clearAllSelections();
-                updateSelectedCount();
-                // Auto-refresh the page to show updated list
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
+        .then(result => {
+            if (result.success) {
+                showAlert(successMessage, 'success');
+                if (onSuccess) onSuccess(result);
+                setTimeout(() => window.location.reload(), 800);
             } else {
-                showAlert(data.message || 'Error categorizing transactions', 'error');
+                showAlert(result.message || 'Operation failed', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showAlert('Error categorizing transactions', 'error');
+            showAlert('Network error occurred', 'error');
+        });
+    }
+
+    function bulkCategorizeTransactions(transactionIds, categoryId) {
+        const data = { transaction_ids: transactionIds, category_id: categoryId };
+        const successMessage = `Successfully categorized ${transactionIds.length} transactions`;
+        
+        makeApiRequest('/api/bulk-categorize', data, successMessage, () => {
+            clearAllSelections();
+            updateSelectedCount();
         });
     }
     
     function updateTransactionCategory(transactionId, categoryId, saveBtn) {
-        const data = {
-            transaction_id: transactionId,
-            category_id: categoryId
-        };
-        
-        fetch('/api/update-category', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showAlert('Category updated successfully', 'success');
-                // Auto-refresh the page to show updated list
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-            } else {
-                showAlert(data.message || 'Error updating category', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showAlert('Error updating category', 'error');
-        });
+        const data = { transaction_id: transactionId, category_id: categoryId };
+        makeApiRequest('/api/update-category', data, 'Category updated successfully');
     }
     
     function applyFilters() {

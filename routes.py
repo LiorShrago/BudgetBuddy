@@ -3,13 +3,12 @@ import secrets
 from datetime import datetime, date
 from decimal import Decimal
 from flask import render_template, request, redirect, url_for, flash, jsonify, session
-from datetime import datetime
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
 from sqlalchemy import func, and_, or_
 from app import app, db
 from models import User, Account, Category, Transaction, Budget, BudgetItem, CategorizationRule, LoginAttempt
-from csv_processor import process_csv_file
+
 from csv_parsers import get_parser_by_format, detect_csv_format
 from categorization import auto_categorize_transaction
 from ai_categorizer import auto_categorize_uncategorized_transactions, get_categorization_suggestions
@@ -499,14 +498,11 @@ def upload():
                     csv_format = detected_format
                 
                 # Use appropriate parser
-                if csv_format == 'generic':
-                    transactions_count = process_csv_file(filepath, int(account_id), current_user.id)
+                parser = get_parser_by_format(csv_format)
+                if parser:
+                    transactions_count = parser.parse(filepath, int(account_id), current_user.id)
                 else:
-                    parser = get_parser_by_format(csv_format)
-                    if parser:
-                        transactions_count = parser.parse(filepath, int(account_id), current_user.id)
-                    else:
-                        transactions_count = process_csv_file(filepath, int(account_id), current_user.id)
+                    raise ValueError(f"Unsupported CSV format: {csv_format}")
                 
                 flash(f'Successfully imported {transactions_count} transactions using {csv_format.replace("_", " ").title()} format', 'success')
                 os.remove(filepath)  # Clean up uploaded file
@@ -874,23 +870,6 @@ def apply_suggestions():
         })
     except Exception as e:
         db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)})
-
-
-@app.route('/api/ai-categorize-all', methods=['POST'])
-@login_required
-def ai_categorize_all():
-    """Auto-categorize all uncategorized transactions using AI"""
-    try:
-        stats = auto_categorize_uncategorized_transactions(current_user.id)
-        
-        return jsonify({
-            'success': True,
-            'stats': stats,
-            'message': f"AI categorized {stats['categorized']} out of {stats['total']} transactions"
-        })
-        
-    except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
 
