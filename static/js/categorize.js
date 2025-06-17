@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
                 
-                // Clear form
+                // Clear form and don't reload page
                 newCategoryForm.reset();
             } else {
                 showAlert(data.message || 'Error creating category', 'error');
