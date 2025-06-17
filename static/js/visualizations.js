@@ -105,19 +105,27 @@ function getChartOptions(chartType) {
                 labels: {
                     padding: 20,
                     usePointStyle: true,
-                    color: chartSettings.darkTheme ? '#fff' : '#212529',
+                    color: '#ffffff',
                     font: {
-                        size: 12,
-                        weight: 500
+                        size: 14,
+                        weight: 600
                     }
                 }
             },
             tooltip: {
-                backgroundColor: chartSettings.darkTheme ? '#333' : 'rgba(0,0,0,0.8)',
-                titleColor: '#fff',
-                bodyColor: '#fff',
-                borderColor: '#fff',
-                borderWidth: 1
+                backgroundColor: 'rgba(0,0,0,0.9)',
+                titleColor: '#ffffff',
+                bodyColor: '#ffffff',
+                borderColor: '#ffffff',
+                borderWidth: 2,
+                titleFont: {
+                    size: 14,
+                    weight: 600
+                },
+                bodyFont: {
+                    size: 13,
+                    weight: 500
+                }
             }
         }
     };
@@ -127,13 +135,13 @@ function getChartOptions(chartType) {
             y: {
                 beginAtZero: true,
                 grid: {
-                    color: chartSettings.darkTheme ? '#444' : '#e0e0e0'
+                    color: '#444444'
                 },
                 ticks: {
-                    color: chartSettings.darkTheme ? '#fff' : '#212529',
+                    color: '#ffffff',
                     font: {
-                        size: 11,
-                        weight: 500
+                        size: 13,
+                        weight: 600
                     },
                     callback: function(value) {
                         return '$' + value.toLocaleString();
@@ -142,12 +150,12 @@ function getChartOptions(chartType) {
             },
             x: {
                 grid: {
-                    color: chartSettings.darkTheme ? '#444' : '#e0e0e0'
+                    color: '#444444'
                 },
                 ticks: {
-                    color: chartSettings.darkTheme ? '#fff' : '#212529',
+                    color: '#ffffff',
                     font: {
-                        size: 11,
+                        size: 13,
                         weight: 500
                     }
                 }

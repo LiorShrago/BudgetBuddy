@@ -78,11 +78,19 @@ function initializeSpendingChart() {
                             display: false  // We'll show the legend in the breakdown list
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(0,0,0,0.8)',
-                            titleColor: '#fff',
-                            bodyColor: '#fff',
-                            borderColor: '#fff',
-                            borderWidth: 1,
+                            backgroundColor: 'rgba(0,0,0,0.9)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#ffffff',
+                            borderWidth: 2,
+                            titleFont: {
+                                size: 14,
+                                weight: 600
+                            },
+                            bodyFont: {
+                                size: 13,
+                                weight: 500
+                            },
                             callbacks: {
                                 label: function(context) {
                                     const value = context.raw;
