@@ -78,7 +78,9 @@ class User(UserMixin, db.Model):
         if not self.totp_secret or not self.is_two_factor_enabled:
             return False
         totp = pyotp.TOTP(self.totp_secret)
-        return totp.verify(token, valid_window=1)
+        # Allow 3 time windows (90 seconds before and after current time)
+        # This gives users up to 3 minutes to enter their code
+        return totp.verify(token, valid_window=3)
     
     def generate_backup_codes(self):
         """Generate backup codes for 2FA recovery"""
