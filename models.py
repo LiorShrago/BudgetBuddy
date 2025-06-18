@@ -64,7 +64,7 @@ class User(UserMixin, db.Model):
         self.totp_secret = pyotp.random_base32()
         return self.totp_secret
     
-    def get_totp_uri(self, app_name="BudgetApp"):
+    def get_totp_uri(self, app_name="BudgetBuddy"):
         """Get TOTP URI for QR code generation"""
         if not self.totp_secret:
             return None
@@ -122,7 +122,7 @@ class User(UserMixin, db.Model):
         self.two_factor_backup_codes = None
         db.session.commit()
     
-    def generate_qr_code(self, app_name="BudgetApp"):
+    def generate_qr_code(self, app_name="BudgetBuddy"):
         """Generate QR code for TOTP setup"""
         if not self.totp_secret:
             return None

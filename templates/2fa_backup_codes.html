@@ -82,7 +82,7 @@ function printCodes() {
     printWindow.document.write(`
         <html>
         <head>
-            <title>Budget Tracker - Backup Codes</title>
+            <title>BudgetBuddy - Backup Codes</title>
             <style>
                 body { font-family: Arial, sans-serif; margin: 20px; }
                 .header { text-align: center; margin-bottom: 30px; }
@@ -93,7 +93,7 @@ function printCodes() {
         </head>
         <body>
             <div class="header">
-                <h2>Budget Tracker - Two-Factor Authentication Backup Codes</h2>
+                <h2>BudgetBuddy - Two-Factor Authentication Backup Codes</h2>
                 <p>Generated: ${new Date().toLocaleDateString()}</p>
             </div>
             <div class="warning">
@@ -112,7 +112,7 @@ function printCodes() {
 
 function downloadCodes() {
     const codes = [{% for code in backup_codes %}'{{ code }}'{% if not loop.last %}, {% endif %}{% endfor %}];
-    const content = `Budget Tracker - Two-Factor Authentication Backup Codes
+    const content = `BudgetBuddy - Two-Factor Authentication Backup Codes
 Generated: ${new Date().toISOString()}
 
 IMPORTANT: These codes can be used to access your account if you lose your authenticator device.
@@ -132,7 +132,7 @@ Storage Recommendations:
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'budget-tracker-backup-codes.txt';
+    a.download = 'budgetbuddy-backup-codes.txt';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
