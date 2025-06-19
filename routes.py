@@ -810,9 +810,10 @@ def ai_suggest_all():
         if not uncategorized_transactions:
             return jsonify({'success': False, 'message': 'No uncategorized transactions found'})
         
-        # Get AI suggestions
+        # Get AI suggestions (temporarily disabled)
         transaction_ids = [t.id for t in uncategorized_transactions]
-        suggestions_dict = get_categorization_suggestions(transaction_ids, current_user.id)
+        # suggestions_dict = get_categorization_suggestions(transaction_ids, current_user.id)
+        suggestions_dict = {}
         
         # Format suggestions for frontend
         suggestions = []
@@ -884,7 +885,8 @@ def ai_suggest_categories():
         if not transaction_ids:
             return jsonify({'success': False, 'message': 'No transactions selected'})
         
-        suggestions = get_categorization_suggestions(transaction_ids, current_user.id)
+        # suggestions = get_categorization_suggestions(transaction_ids, current_user.id)
+        suggestions = {}
         
         return jsonify({
             'success': True,
