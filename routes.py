@@ -9,9 +9,9 @@ from sqlalchemy import func, and_, or_
 from app import app, db
 from models import User, Account, Category, Transaction, Budget, BudgetItem, CategorizationRule, LoginAttempt
 
-from csv_parsers import get_parser_by_format, detect_csv_format
+from csv_parsers_simple import get_parser_by_format, detect_csv_format
 from categorization import auto_categorize_transaction
-from ai_categorizer import auto_categorize_uncategorized_transactions, get_categorization_suggestions
+# from ai_categorizer import auto_categorize_uncategorized_transactions, get_categorization_suggestions
 
 
 def log_login_attempt(user_id, username, success=False, two_factor_used=False):
