@@ -295,12 +295,17 @@
     position: relative;
     color: rgba(255, 255, 255, 0.9);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1;
 }
 
 .mint-stat-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     border-color: rgba(255, 255, 255, 0.2);
+}
+
+.mint-stat-card.dropdown-active {
+    z-index: 10000;
 }
 
 .mint-stat-header {
@@ -347,7 +352,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    z-index: 1000;
+    z-index: 9999;
     display: none;
     margin-top: 4px;
     overflow: hidden;
@@ -525,12 +530,20 @@ function toggleStatDropdown(card) {
     document.querySelectorAll('.mint-stat-dropdown.show').forEach(dropdown => {
         if (dropdown !== card.querySelector('.mint-stat-dropdown')) {
             dropdown.classList.remove('show');
+            dropdown.closest('.mint-stat-card').classList.remove('dropdown-active');
         }
     });
     
     // Toggle current dropdown
     const dropdown = card.querySelector('.mint-stat-dropdown');
     dropdown.classList.toggle('show');
+    
+    // Add/remove active class for higher z-index
+    if (dropdown.classList.contains('show')) {
+        card.classList.add('dropdown-active');
+    } else {
+        card.classList.remove('dropdown-active');
+    }
 }
 
 function viewAccount(accountId) {
@@ -543,6 +556,7 @@ document.addEventListener('click', function(event) {
     if (!event.target.closest('.mint-stat-card')) {
         document.querySelectorAll('.mint-stat-dropdown.show').forEach(dropdown => {
             dropdown.classList.remove('show');
+            dropdown.closest('.mint-stat-card').classList.remove('dropdown-active');
         });
     }
 });

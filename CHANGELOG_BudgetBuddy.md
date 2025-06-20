@@ -20,3 +20,8 @@
 - **templates/dashboard.html**: Updated all five statistic card dropdown menus to display real account data instead of placeholder values, added proper conditional rendering for empty states
 - **templates/dashboard.html**: Fixed viewAccount function to properly route to accounts page with highlighting
 
+### 2025-01-20 07:10:00
+- **File(s):** templates/dashboard.html
+- **Change:** Fixed dropdown menu z-index issues by increasing z-index to 9999 and adding dropdown-active class management to ensure dropdowns appear above all other page elements
+- **Timestamp:** 2025-01-20 07:10:00
+
