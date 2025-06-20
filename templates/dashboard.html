@@ -13,47 +13,128 @@
     </div>
 </div>
 
-<!-- Summary Cards -->
-<div class="row g-4 mb-4">
-    <div class="col-md-4">
-        <div class="card bg-primary text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="card-title">Total Balance</h5>
-                        <h2 class="mb-0">${{ "%.2f"|format(total_balance) }}</h2>
-                    </div>
-                    <i data-feather="dollar-sign" style="width: 48px; height: 48px;"></i>
+<!-- Mint-style Statistic Cards -->
+<div class="row g-3 mb-4" id="mint-statistics">
+    <!-- Net Worth -->
+    <div class="col-md col-6">
+        <div class="mint-stat-card" data-category="net-worth" onclick="toggleStatDropdown(this)">
+            <div class="mint-stat-header">
+                <i data-feather="trending-up" class="mint-stat-icon"></i>
+                <span class="mint-stat-label">Net Worth</span>
+            </div>
+            <div class="mint-stat-amount positive">$0.00</div>
+            <div class="mint-stat-dropdown" id="dropdown-net-worth">
+                <div class="mint-dropdown-item" onclick="viewAccount('account-1')">
+                    <span>Savings Account</span>
+                    <span class="positive">$5,250.00</span>
+                </div>
+                <div class="mint-dropdown-item" onclick="viewAccount('account-2')">
+                    <span>Investment Portfolio</span>
+                    <span class="positive">$12,400.00</span>
+                </div>
+                <div class="mint-dropdown-item" onclick="viewAccount('account-3')">
+                    <span>Emergency Fund</span>
+                    <span class="positive">$3,000.00</span>
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="col-md-4">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="card-title">Active Accounts</h5>
-                        <h2 class="mb-0">{{ total_accounts }}</h2>
-                    </div>
-                    <i data-feather="credit-card" style="width: 48px; height: 48px;"></i>
+    <!-- Credit Cards -->
+    <div class="col-md col-6">
+        <div class="mint-stat-card" data-category="credit-cards" onclick="toggleStatDropdown(this)">
+            <div class="mint-stat-header">
+                <i data-feather="credit-card" class="mint-stat-icon"></i>
+                <span class="mint-stat-label">Credit Cards</span>
+            </div>
+            <div class="mint-stat-amount negative">$0.00</div>
+            <div class="mint-stat-dropdown" id="dropdown-credit-cards">
+                <div class="mint-dropdown-item" onclick="viewAccount('cc-1')">
+                    <span>Chase Sapphire</span>
+                    <span class="negative">-$1,250.00</span>
+                </div>
+                <div class="mint-dropdown-item" onclick="viewAccount('cc-2')">
+                    <span>Capital One</span>
+                    <span class="negative">-$750.00</span>
+                </div>
+                <div class="mint-dropdown-item" onclick="viewAccount('cc-3')">
+                    <span>Discover</span>
+                    <span class="negative">-$450.00</span>
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="col-md-4">
-        <div class="card bg-info text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="card-title">This Month</h5>
-                        <h2 class="mb-0">
-                            ${{ "%.2f"|format(spending_by_category|sum(attribute=1) or 0) }}
-                        </h2>
-                    </div>
-                    <i data-feather="trending-down" style="width: 48px; height: 48px;"></i>
+    <!-- Cash -->
+    <div class="col-md col-6">
+        <div class="mint-stat-card" data-category="cash" onclick="toggleStatDropdown(this)">
+            <div class="mint-stat-header">
+                <i data-feather="dollar-sign" class="mint-stat-icon"></i>
+                <span class="mint-stat-label">Cash</span>
+            </div>
+            <div class="mint-stat-amount positive">$0.00</div>
+            <div class="mint-stat-dropdown" id="dropdown-cash">
+                <div class="mint-dropdown-item" onclick="viewAccount('cash-1')">
+                    <span>Checking Account</span>
+                    <span class="positive">$2,150.00</span>
+                </div>
+                <div class="mint-dropdown-item" onclick="viewAccount('cash-2')">
+                    <span>Money Market</span>
+                    <span class="positive">$5,800.00</span>
+                </div>
+                <div class="mint-dropdown-item" onclick="viewAccount('cash-3')">
+                    <span>Cash App</span>
+                    <span class="positive">$125.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loans -->
+    <div class="col-md col-6">
+        <div class="mint-stat-card" data-category="loans" onclick="toggleStatDropdown(this)">
+            <div class="mint-stat-header">
+                <i data-feather="home" class="mint-stat-icon"></i>
+                <span class="mint-stat-label">Loans</span>
+            </div>
+            <div class="mint-stat-amount negative">$0.00</div>
+            <div class="mint-stat-dropdown" id="dropdown-loans">
+                <div class="mint-dropdown-item" onclick="viewAccount('loan-1')">
+                    <span>Mortgage</span>
+                    <span class="negative">-$285,000.00</span>
+                </div>
+                <div class="mint-dropdown-item" onclick="viewAccount('loan-2')">
+                    <span>Auto Loan</span>
+                    <span class="negative">-$18,500.00</span>
+                </div>
+                <div class="mint-dropdown-item" onclick="viewAccount('loan-3')">
+                    <span>Student Loan</span>
+                    <span class="negative">-$12,750.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Investments -->
+    <div class="col-md col-6">
+        <div class="mint-stat-card" data-category="investments" onclick="toggleStatDropdown(this)">
+            <div class="mint-stat-header">
+                <i data-feather="pie-chart" class="mint-stat-icon"></i>
+                <span class="mint-stat-label">Investments</span>
+            </div>
+            <div class="mint-stat-amount positive">$0.00</div>
+            <div class="mint-stat-dropdown" id="dropdown-investments">
+                <div class="mint-dropdown-item" onclick="viewAccount('inv-1')">
+                    <span>401(k)</span>
+                    <span class="positive">$45,200.00</span>
+                </div>
+                <div class="mint-dropdown-item" onclick="viewAccount('inv-2')">
+                    <span>Roth IRA</span>
+                    <span class="positive">$18,750.00</span>
+                </div>
+                <div class="mint-dropdown-item" onclick="viewAccount('inv-3')">
+                    <span>Brokerage</span>
+                    <span class="positive">$8,950.00</span>
                 </div>
             </div>
         </div>
@@ -194,6 +275,136 @@
 
 {% block scripts %}
 <style>
+/* Mint-style Statistic Cards */
+#mint-statistics {
+    background-color: #121417;
+    padding: 0;
+}
+
+.mint-stat-card {
+    background-color: #1E2227;
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mint-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.mint-stat-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.mint-stat-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    opacity: 0.7;
+}
+
+.mint-stat-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mint-stat-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.mint-stat-amount.positive {
+    color: #28a745;
+}
+
+.mint-stat-amount.negative {
+    color: #dc3545;
+}
+
+.mint-stat-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #1E2227;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    display: none;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.mint-stat-dropdown.show {
+    display: block;
+}
+
+.mint-dropdown-item {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 0.85rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mint-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.mint-dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.mint-dropdown-item span:first-child {
+    flex: 1;
+    opacity: 0.9;
+}
+
+.mint-dropdown-item span:last-child {
+    font-weight: 600;
+}
+
+.mint-dropdown-item span.positive {
+    color: #28a745;
+}
+
+.mint-dropdown-item span.negative {
+    color: #dc3545;
+}
+
+/* Responsive behavior */
+@media (max-width: 767px) {
+    #mint-statistics .col-md {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+    
+    .mint-stat-card {
+        padding: 12px;
+    }
+    
+    .mint-stat-amount {
+        font-size: 1.2rem;
+    }
+}
+
+/* Existing category breakdown styles */
 .category-breakdown-list {
     max-height: 350px;
     overflow-y: auto;
@@ -301,4 +512,41 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+<script>
+// Mint-style statistic card interactions
+function toggleStatDropdown(card) {
+    // Close all other dropdowns first
+    document.querySelectorAll('.mint-stat-dropdown.show').forEach(dropdown => {
+        if (dropdown !== card.querySelector('.mint-stat-dropdown')) {
+            dropdown.classList.remove('show');
+        }
+    });
+    
+    // Toggle current dropdown
+    const dropdown = card.querySelector('.mint-stat-dropdown');
+    dropdown.classList.toggle('show');
+}
+
+function viewAccount(accountId) {
+    // Route to account detail view
+    window.location.href = `{{ url_for('accounts') }}#${accountId}`;
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.mint-stat-card')) {
+        document.querySelectorAll('.mint-stat-dropdown.show').forEach(dropdown => {
+            dropdown.classList.remove('show');
+        });
+    }
+});
+
+// Prevent dropdown close when clicking inside dropdown
+document.querySelectorAll('.mint-stat-dropdown').forEach(dropdown => {
+    dropdown.addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
+});
+</script>
 {% endblock %}
