@@ -22,7 +22,7 @@
                 <i data-feather="trending-up" class="mint-stat-icon"></i>
                 <span class="mint-stat-label">Net Worth</span>
             </div>
-            <div class="mint-stat-amount positive">$0.00</div>
+            <div class="mint-stat-amount {{ 'positive' if net_worth >= 0 else 'negative' }}">${{ "{:,.2f}".format(net_worth) }}</div>
             <div class="mint-stat-dropdown" id="dropdown-net-worth">
                 <div class="mint-dropdown-item" onclick="viewAccount('account-1')">
                     <span>Savings Account</span>
@@ -47,7 +47,7 @@
                 <i data-feather="credit-card" class="mint-stat-icon"></i>
                 <span class="mint-stat-label">Credit Cards</span>
             </div>
-            <div class="mint-stat-amount negative">$0.00</div>
+            <div class="mint-stat-amount {{ 'negative' if credit_cards_total > 0 else 'positive' }}">${{ "{:,.2f}".format(credit_cards_total) }}</div>
             <div class="mint-stat-dropdown" id="dropdown-credit-cards">
                 <div class="mint-dropdown-item" onclick="viewAccount('cc-1')">
                     <span>Chase Sapphire</span>
@@ -72,7 +72,7 @@
                 <i data-feather="dollar-sign" class="mint-stat-icon"></i>
                 <span class="mint-stat-label">Cash</span>
             </div>
-            <div class="mint-stat-amount positive">$0.00</div>
+            <div class="mint-stat-amount {{ 'positive' if cash_total >= 0 else 'negative' }}">${{ "{:,.2f}".format(cash_total) }}</div>
             <div class="mint-stat-dropdown" id="dropdown-cash">
                 <div class="mint-dropdown-item" onclick="viewAccount('cash-1')">
                     <span>Checking Account</span>
@@ -97,7 +97,7 @@
                 <i data-feather="home" class="mint-stat-icon"></i>
                 <span class="mint-stat-label">Loans</span>
             </div>
-            <div class="mint-stat-amount negative">$0.00</div>
+            <div class="mint-stat-amount {{ 'negative' if loans_total > 0 else 'positive' }}">${{ "{:,.2f}".format(loans_total) }}</div>
             <div class="mint-stat-dropdown" id="dropdown-loans">
                 <div class="mint-dropdown-item" onclick="viewAccount('loan-1')">
                     <span>Mortgage</span>
@@ -122,7 +122,7 @@
                 <i data-feather="pie-chart" class="mint-stat-icon"></i>
                 <span class="mint-stat-label">Investments</span>
             </div>
-            <div class="mint-stat-amount positive">$0.00</div>
+            <div class="mint-stat-amount {{ 'positive' if investments_total >= 0 else 'negative' }}">${{ "{:,.2f}".format(investments_total) }}</div>
             <div class="mint-stat-dropdown" id="dropdown-investments">
                 <div class="mint-dropdown-item" onclick="viewAccount('inv-1')">
                     <span>401(k)</span>

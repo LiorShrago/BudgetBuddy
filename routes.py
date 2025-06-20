@@ -273,9 +273,86 @@ def security_log():
     return render_template('security_log.html', attempts=attempts)
 
 
+def calculate_net_worth(user_id):
+    """Calculate net worth: (cash + savings + investments) - (loans + credit cards)"""
+    # Get assets (positive balances for asset accounts)
+    assets = db.session.query(func.sum(Account.balance)).filter(
+        Account.user_id == user_id,
+        Account.is_active == True,
+        Account.account_type.in_(['checking', 'savings', 'investment', 'cash'])
+    ).scalar() or 0
+    
+    # Get liabilities (balances for debt accounts - these should be positive values representing debt)
+    liabilities = db.session.query(func.sum(Account.balance)).filter(
+        Account.user_id == user_id,
+        Account.is_active == True,
+        Account.account_type.in_(['credit_card', 'loan', 'mortgage'])
+    ).scalar() or 0
+    
+    return float(assets) - float(liabilities)
+
+
+def calculate_credit_cards_total(user_id):
+    """Calculate total credit card balances"""
+    total = db.session.query(func.sum(Account.balance)).filter(
+        Account.user_id == user_id,
+        Account.is_active == True,
+        Account.account_type == 'credit_card'
+    ).scalar() or 0
+    return float(total)
+
+
+def calculate_cash_total(user_id):
+    """Calculate total cash and checking account balances"""
+    total = db.session.query(func.sum(Account.balance)).filter(
+        Account.user_id == user_id,
+        Account.is_active == True,
+        Account.account_type.in_(['checking', 'cash'])
+    ).scalar() or 0
+    return float(total)
+
+
+def calculate_savings_total(user_id):
+    """Calculate total savings account balances"""
+    total = db.session.query(func.sum(Account.balance)).filter(
+        Account.user_id == user_id,
+        Account.is_active == True,
+        Account.account_type == 'savings'
+    ).scalar() or 0
+    return float(total)
+
+
+def calculate_loans_total(user_id):
+    """Calculate total loan balances"""
+    total = db.session.query(func.sum(Account.balance)).filter(
+        Account.user_id == user_id,
+        Account.is_active == True,
+        Account.account_type.in_(['loan', 'mortgage'])
+    ).scalar() or 0
+    return float(total)
+
+
+def calculate_investments_total(user_id):
+    """Calculate total investment account balances"""
+    total = db.session.query(func.sum(Account.balance)).filter(
+        Account.user_id == user_id,
+        Account.is_active == True,
+        Account.account_type == 'investment'
+    ).scalar() or 0
+    return float(total)
+
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    # Calculate account totals
+    net_worth = calculate_net_worth(current_user.id)
+    credit_cards_total = calculate_credit_cards_total(current_user.id)
+    cash_total = calculate_cash_total(current_user.id)
+    savings_total = calculate_savings_total(current_user.id)
+    loans_total = calculate_loans_total(current_user.id)
+    investments_total = calculate_investments_total(current_user.id)
+    
     # Get summary data
     total_balance = db.session.query(func.sum(Account.balance)).filter_by(user_id=current_user.id).scalar() or 0
     total_accounts = Account.query.filter_by(user_id=current_user.id, is_active=True).count()
@@ -300,7 +377,13 @@ def dashboard():
                          total_balance=total_balance,
                          total_accounts=total_accounts,
                          recent_transactions=recent_transactions,
-                         spending_by_category=spending_by_category)
+                         spending_by_category=spending_by_category,
+                         net_worth=net_worth,
+                         credit_cards_total=credit_cards_total,
+                         cash_total=cash_total,
+                         savings_total=savings_total,
+                         loans_total=loans_total,
+                         investments_total=investments_total)
 
 
 @app.route('/accounts')
