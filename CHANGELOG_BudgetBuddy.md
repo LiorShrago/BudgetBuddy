@@ -20,3 +20,8 @@
 - **templates/dashboard.html**: Updated all five statistic card dropdown menus to display real account data instead of placeholder values, added proper conditional rendering for empty states
 - **templates/dashboard.html**: Fixed viewAccount function to properly route to accounts page with highlighting
 
+### 2025-01-20 07:05:00
+- **File(s):** templates/dashboard.html
+- **Change:** Increased z-index for mint-stat-dropdown from 1000 to 9999 to ensure dropdowns appear above all other page elements
+- **Timestamp:** 2025-01-20 07:05:00
+
