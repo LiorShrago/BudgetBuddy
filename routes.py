@@ -11,7 +11,7 @@ from models import User, Account, Category, Transaction, Budget, BudgetItem, Cat
 
 from csv_parsers import get_parser_by_format, detect_csv_format
 from categorization import auto_categorize_transaction
-# from ai_categorizer import auto_categorize_uncategorized_transactions, get_categorization_suggestions
+from ai_categorizer import auto_categorize_uncategorized_transactions, get_categorization_suggestions
 
 
 def log_login_attempt(user_id, username, success=False, two_factor_used=False):
@@ -810,10 +810,9 @@ def ai_suggest_all():
         if not uncategorized_transactions:
             return jsonify({'success': False, 'message': 'No uncategorized transactions found'})
         
-        # Get AI suggestions (temporarily disabled)
+        # Get AI suggestions
         transaction_ids = [t.id for t in uncategorized_transactions]
-        # suggestions_dict = get_categorization_suggestions(transaction_ids, current_user.id)
-        suggestions_dict = {}
+        suggestions_dict = get_categorization_suggestions(transaction_ids, current_user.id)
         
         # Format suggestions for frontend
         suggestions = []
@@ -885,8 +884,7 @@ def ai_suggest_categories():
         if not transaction_ids:
             return jsonify({'success': False, 'message': 'No transactions selected'})
         
-        # suggestions = get_categorization_suggestions(transaction_ids, current_user.id)
-        suggestions = {}
+        suggestions = get_categorization_suggestions(transaction_ids, current_user.id)
         
         return jsonify({
             'success': True,
