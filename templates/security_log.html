@@ -74,24 +74,25 @@
                                             <small class="text-muted">
                                                 {% if attempt.user_agent %}
                                                     {% set parts = attempt.user_agent.split() %}
+                                                    {% set browser_found = false %}
                                                     {% for part in parts %}
-                                                        {% if 'Chrome' in part %}
+                                                        {% if 'Chrome' in part and not browser_found %}
                                                             <i data-feather="chrome" style="width: 12px; height: 12px;"></i> Chrome
-                                                            {% break %}
-                                                        {% elif 'Firefox' in part %}
+                                                            {% set browser_found = true %}
+                                                        {% elif 'Firefox' in part and not browser_found %}
                                                             <i data-feather="firefox" style="width: 12px; height: 12px;"></i> Firefox
-                                                            {% break %}
-                                                        {% elif 'Safari' in part %}
+                                                            {% set browser_found = true %}
+                                                        {% elif 'Safari' in part and not browser_found %}
                                                             <i data-feather="compass" style="width: 12px; height: 12px;"></i> Safari
-                                                            {% break %}
-                                                        {% elif 'Edge' in part %}
+                                                            {% set browser_found = true %}
+                                                        {% elif 'Edge' in part and not browser_found %}
                                                             <i data-feather="globe" style="width: 12px; height: 12px;"></i> Edge
-                                                            {% break %}
-                                                        {% endif %}
-                                                        {% if loop.last %}
-                                                            <i data-feather="globe" style="width: 12px; height: 12px;"></i> Unknown Browser
+                                                            {% set browser_found = true %}
                                                         {% endif %}
                                                     {% endfor %}
+                                                    {% if not browser_found %}
+                                                        <i data-feather="globe" style="width: 12px; height: 12px;"></i> Unknown Browser
+                                                    {% endif %}
                                                     <br>
                                                     <span style="font-size: 0.85em;">{{ attempt.user_agent[:80] }}{% if attempt.user_agent|length > 80 %}...{% endif %}</span>
                                                 {% else %}

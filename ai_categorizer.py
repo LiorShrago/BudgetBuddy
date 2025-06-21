@@ -87,13 +87,15 @@ Instructions:
 2. Match it to the most appropriate category from the list
 3. If no category fits well, return null for that transaction
 4. Consider common spending patterns:
-   - Grocery stores, restaurants → Food & Dining
-   - Gas stations, parking, transit → Transportation  
-   - Amazon, retail stores → Shopping
-   - Utilities, phone bills → Bills & Utilities
-   - Movies, games, subscriptions → Entertainment
-   - Banks, transfers → Financial Services
-
+   - Grocery stores, supermarkets, convenience stores → Groceries
+   - Restaurants, Bars, Fast Food, Food Delivery → Food & Dining
+   - Gas stations, car maintenance, car insurance, car payments, parking, Transit → Car/Transportation
+   - Amazon, retail stores, malls, winners, any clothing store any tech store like best buy → Shopping
+   - Utilities, phone bills, internet bills, cable bills, tel max, gas, hydro, water → Bills & Utilities
+   - Movies, games, subscriptions, streaming services → Entertainment
+   - Bank transfers received, e-transfers received,salary from AMD,  deposits → Cashflow Income
+   - Bank transfers sent, e-transfers sent,salary from AMD,credit card payments, rent, mortgage, insurance, taxes, loans, debt payments → Cashflow Out
+   - rent, house purchases - Home
 Respond with ONLY a valid JSON object in this exact format:
 {{"transaction_id": category_id_or_null, "transaction_id": category_id_or_null}}
 
