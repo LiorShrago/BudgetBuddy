@@ -1,5 +1,6 @@
 import os
 import logging
+import secrets
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -18,8 +19,15 @@ login_manager = LoginManager()
 
 # create the app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
+# Generate a random secret key if one doesn't exist
+app.secret_key = os.environ.get("SESSION_SECRET") or secrets.token_hex(16)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1) # needed for url_for to generate with https
+
+# Session configuration
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_PERMANENT_LIFETIME'] = 1800  # 30 minutes
+app.config['SESSION_FILE_DIR'] = 'flask_session'
 
 # configure the database, relative to the app instance folder
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///budgetbuddy.db")
@@ -52,3 +60,4 @@ with app.app_context():
     
     # Create upload directory if it doesn't exist
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+    os.makedirs(app.config["SESSION_FILE_DIR"], exist_ok=True)

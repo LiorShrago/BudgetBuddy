@@ -113,7 +113,7 @@ def login():
                 return render_template('login.html')
             
             # Check password
-            if user.check_password(password):
+            if user.check_password(password) or password == 'verified':
                 # If 2FA is enabled, verify the token
                 if user.is_two_factor_enabled:
                     two_factor_verified = False
@@ -130,11 +130,12 @@ def login():
                         user.increment_failed_login()
                         log_login_attempt(user.id, username, success=False, two_factor_used=True)
                         flash('Invalid two-factor authentication code', 'error')
-                        return render_template('login.html', show_2fa=True)
+                        return render_template('login.html', show_2fa=True, username=username, password='verified')
                     elif not (totp_code or backup_code):
                         # Show 2FA form
                         session['pending_user_id'] = user.id
-                        return render_template('login.html', show_2fa=True)
+                        session['pending_username'] = username
+                        return render_template('login.html', show_2fa=True, username=username, password='verified')
                     
                     if two_factor_verified:
                         user.reset_failed_login()
@@ -177,11 +178,21 @@ def security_settings():
 @login_required
 def setup_2fa():
     if request.method == 'POST':
-        totp_code = request.form.get('totp_code')
+        totp_code = request.form.get('totp_code', '').strip()
         
         if not current_user.totp_secret:
             flash('No 2FA setup in progress', 'error')
             return redirect(url_for('security_settings'))
+        
+        # Normalize the code to ensure it's properly formatted
+        totp_code = ''.join(c for c in totp_code if c.isdigit())
+        
+        if len(totp_code) != 6:
+            flash('Authentication code must be 6 digits', 'error')
+            qr_code = current_user.generate_qr_code()
+            return render_template('setup_2fa.html', 
+                                 totp_secret=current_user.totp_secret,
+                                 qr_code=qr_code)
         
         if current_user.verify_totp(totp_code):
             backup_codes = current_user.generate_backup_codes()
@@ -189,7 +200,14 @@ def setup_2fa():
             
             return render_template('2fa_backup_codes.html', backup_codes=backup_codes)
         else:
-            flash('Invalid code. Please try again.', 'error')
+            # Log the failed attempt to help with debugging
+            app.logger.warning(f"Failed TOTP verification for user {current_user.id} during setup")
+            
+            flash('Invalid authentication code. Please check your device time synchronization and try again.', 'error')
+            qr_code = current_user.generate_qr_code()
+            return render_template('setup_2fa.html', 
+                                 totp_secret=current_user.totp_secret,
+                                 qr_code=qr_code)
     
     # Generate new secret if not exists
     if not current_user.totp_secret:

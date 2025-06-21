@@ -6,6 +6,7 @@ import pyotp
 import qrcode
 import io
 import base64
+import time
 
 
 class User(UserMixin, db.Model):
@@ -68,19 +69,36 @@ class User(UserMixin, db.Model):
         """Get TOTP URI for QR code generation"""
         if not self.totp_secret:
             return None
-        return pyotp.totp.TOTP(self.totp_secret).provisioning_uri(
+        totp = pyotp.totp.TOTP(self.totp_secret)
+        return totp.provisioning_uri(
             name=self.email,
             issuer_name=app_name
         )
     
     def verify_totp(self, token):
         """Verify TOTP token"""
-        if not self.totp_secret or not self.is_two_factor_enabled:
+        if not self.totp_secret:
             return False
-        totp = pyotp.TOTP(self.totp_secret)
-        # Allow 3 time windows (90 seconds before and after current time)
-        # This gives users up to 3 minutes to enter their code
-        return totp.verify(token, valid_window=3)
+        
+        # Normalize the token (remove spaces and non-numeric characters)
+        token = ''.join(c for c in token if c.isdigit())
+        
+        if len(token) != 6:
+            return False
+            
+        try:
+            # Create TOTP object
+            totp = pyotp.TOTP(self.totp_secret)
+            
+            # Try exact match first
+            if totp.verify(token):
+                return True
+                
+            # If that fails, try with a larger window (±5 windows = ±2.5 minutes)
+            return totp.verify(token, valid_window=5)
+        except Exception:
+            # Catch any unexpected errors in the TOTP library
+            return False
     
     def generate_backup_codes(self):
         """Generate backup codes for 2FA recovery"""
@@ -95,11 +113,14 @@ class User(UserMixin, db.Model):
         if not self.two_factor_backup_codes:
             return False
         
+        # Normalize the code (remove spaces, convert to uppercase)
+        code = ''.join(c for c in code if c.isalnum()).upper()
+        
         import json
         try:
             codes = json.loads(self.two_factor_backup_codes)
-            if code.upper() in codes:
-                codes.remove(code.upper())
+            if code in codes:
+                codes.remove(code)
                 self.two_factor_backup_codes = json.dumps(codes)
                 db.session.commit()
                 return True

@@ -36,6 +36,11 @@
                                 <strong>Can't scan?</strong> Manually enter this secret key in your app:
                                 <br>
                                 <code>{{ totp_secret }}</code>
+                                <hr>
+                                <small>
+                                    <strong>For Microsoft Authenticator:</strong> Tap + icon → "Other account" → "Enter setup key" → 
+                                    enter your email as account name and the code above as the key.
+                                </small>
                             </div>
                         </div>
                         
@@ -64,6 +69,17 @@
                                     </a>
                                 </div>
                             </form>
+                            
+                            <div class="alert alert-warning mt-4">
+                                <h6 class="mb-2"><i data-feather="help-circle"></i> Troubleshooting</h6>
+                                <p class="mb-1">If you're getting an "Invalid code" error:</p>
+                                <ul class="mb-0">
+                                    <li>Make sure your device's time is synchronized</li>
+                                    <li>Wait for a new code to generate in the app</li>
+                                    <li>Try entering the code quickly after it appears</li>
+                                    <li>Double-check that you've entered the secret key correctly</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                     
