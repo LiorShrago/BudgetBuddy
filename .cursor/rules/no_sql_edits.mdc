@@ -1,0 +1,14 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+Description: Protect raw SQL scripts
+Globs: database/**/*.sql
+---
+
+# Guidelines
+- Never edit .sql files directly.
+
+- Generate a new migration script instead (Flask-Migrate).

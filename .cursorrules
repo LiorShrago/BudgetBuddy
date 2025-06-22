@@ -1,0 +1,18 @@
+# --- CORE WORKFLOW -------------------------------------------------
+- Always propose tests in tests/ before changing src/.
+- Abort if CHANGELOG.md not updated for the current date.
+- Never push code that produces pylint > 8.0 or flake8 errors > 0.
+
+# --- LOOP-PREVENTION ----------------------------------------------
+- Limit self-generated follow-up prompts to 3; then request human input.
+
+# --- BUG-AVOIDANCE -------------------------------------------------
+- Prefer pure functions; avoid hidden state in Jinja globals.
+- SQL queries must use SQLAlchemy parameter binding (no f-strings).
+
+# --- FILE SAFETY ---------------------------------------------------
+- Treat templates/base.html, static/css/main.css as READ-ONLY unless CONFIRM:READONLY bypass supplied.
+
+
+#--- CHANGE LOG --------------------------------------------------
+- For every accepted diff, append an entry to docs/CHANGELOG.md using docs/changelog_template.md.

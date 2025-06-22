@@ -19,7 +19,7 @@ from flask import appcontext_pushed, g
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app import app as flask_app, db
-from models import User, Account, Category, Transaction, LoginAttempt
+from src.models.models import User, Account, Category, Transaction, LoginAttempt
 
 
 @pytest.fixture

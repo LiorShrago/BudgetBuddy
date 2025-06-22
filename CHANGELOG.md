@@ -1,4 +1,13 @@
+######## TEMPLATE ########
+## {{date}}
+### Added
+### Changed
+### Fixed
+#########################
+
+
 # BudgetBuddy Project Changelog
+
 
 ## Table of Contents
 - [Overview](#overview)
@@ -15,6 +24,17 @@
 This changelog tracks all modifications, fixes, and improvements made to the BudgetBuddy project. Each entry includes detailed notes about the changes, reasoning, and impacts on the system.
 
 ## Change Log
+
+### Backend
+- **[2025-06-22]** Restructured project directory:
+  - Reorganized codebase into a more modular structure
+  - Moved models to src/models/
+  - Moved routes to src/routs/
+  - Moved services to src/services/
+  - Renamed project_changelog.md to CHANGELOG.md for better standardization
+  - Updated import paths across the project
+  - Issue: Project structure was flat and difficult to maintain
+  - Root cause: Initial development focused on functionality over structure
 
 ### Authentication System
 - **[2025-06-20]** Fixed Two-Factor Authentication (2FA) with Microsoft Authenticator:

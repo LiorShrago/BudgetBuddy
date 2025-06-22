@@ -23,7 +23,7 @@ import json
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app import app as flask_app, db
-from models import User, LoginAttempt
+from src.models.models import User, LoginAttempt
 
 
 class TestRegistration(unittest.TestCase):

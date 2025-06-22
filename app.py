@@ -40,13 +40,13 @@ login_manager.login_message = 'Please log in to access this page.'
 
 @login_manager.user_loader
 def load_user(user_id):
-    from models import User
+    from src.models.models import User
     return User.query.get(int(user_id))
 
 with app.app_context():
     # Make sure to import the models here or their tables won't be created
-    import models  # noqa: F401
-    import routes  # noqa: F401
+    import src.models.models as models  # noqa: F401
+    import src.routs.routes as routes  # noqa: F401
     
     db.create_all()
     
