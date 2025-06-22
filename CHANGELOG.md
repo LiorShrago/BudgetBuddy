@@ -108,6 +108,9 @@ This changelog tracks all modifications, fixes, and improvements made to the Bud
 - Added auth fixture to conftest.py for authentication testing
 - Added sample transaction data files for testing
 - Added comprehensive .gitignore rules
+- Added comprehensive environment configuration
+- Added script to generate secure secret keys
+- Added .env.example template
 
 ### Changed
 - Restructured project to use src/ directory structure
@@ -117,6 +120,7 @@ This changelog tracks all modifications, fixes, and improvements made to the Bud
 - Updated template comments to use Jinja2 style
 - Updated .replit configuration to include additional development tools
 - Updated test configuration in conftest.py
+- Enhanced security with environment-based configuration
 
 ### Fixed
 - Resolved merge conflicts in routes.py and dashboard.html
@@ -124,4 +128,55 @@ This changelog tracks all modifications, fixes, and improvements made to the Bud
 - Improved error handling in financial calculations
 - Fixed dropdown menu z-index issues
 - Fixed viewAccount function to properly route to accounts page
-- Fixed git tracking of generated files (database, session files, etc.) 
+- Fixed git tracking of generated files (database, session files, etc.)
+- Fixed security issues with hardcoded configuration
+
+### Security
+- Moved sensitive configuration to environment variables
+- Added secure secret key generation
+- Enhanced session security settings
+- Added rate limiting configuration
+- Improved database connection security
+
+## [2025-01-20]
+
+### Added
+- Enhanced dashboard with Mint-style financial metrics
+- Added net worth calculation and display
+- Added account-specific metrics (credit cards, cash, loans, investments)
+- Added interactive dropdowns for account details
+- Added comprehensive test suite for dashboard functionality
+- Added proper z-index handling for dropdown menus
+- Added vim and openssh to development environment
+- Added auth fixture to conftest.py for authentication testing
+- Added sample transaction data files for testing
+- Added comprehensive .gitignore rules
+- Added comprehensive environment configuration
+- Added script to generate secure secret keys
+- Added .env.example template
+
+### Changed
+- Restructured project to use src/ directory structure
+- Updated import paths to use src prefix
+- Improved code organization and maintainability
+- Replaced legacy statistic tiles with modern financial metric cards
+- Updated template comments to use Jinja2 style
+- Updated .replit configuration to include additional development tools
+- Updated test configuration in conftest.py
+- Enhanced security with environment-based configuration
+
+### Fixed
+- Resolved merge conflicts in routes.py and dashboard.html
+- Fixed account balance calculations
+- Improved error handling in financial calculations
+- Fixed dropdown menu z-index issues
+- Fixed viewAccount function to properly route to accounts page
+- Fixed git tracking of generated files (database, session files, etc.)
+- Fixed security issues with hardcoded configuration
+
+### Security
+- Moved sensitive configuration to environment variables
+- Added secure secret key generation
+- Enhanced session security settings
+- Added rate limiting configuration
+- Improved database connection security 
