@@ -1,0 +1,23 @@
+Replit Rules:
+
+SCOPE CONTROL
+
+Only modify code directly related to the promt you receive
+
+Do NOT change any other components, routes, build configs, or global styles.
+
+CHANGE-LOG REQUIREMENT
+
+Create (if it doesn’t exist) or append to a file named CHANGELOG_BudgetBuddy.md.
+
+For every edit you make, write a bullet entry that states the file(s) changed, a one-line summary of the change, and the timestamp.
+
+Before making any new modification, read this file first and ensure you are not duplicating previous work.
+
+OUTPUT
+
+Prepend a concise bullet list of all files touched, including CHANGELOG_BudgetBuddy.md.
+
+Return only the updated or newly created code blocks.
+
+No additional commentary.”
