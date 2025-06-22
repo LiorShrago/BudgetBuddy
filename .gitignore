@@ -35,9 +35,10 @@ ENV/
 *.swp
 *.swo
 
-# Database
+# Database files
 *.db
 *.sqlite3
+instance/*.db
 
 # Uploads and Assets
 uploads/
