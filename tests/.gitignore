@@ -1,0 +1,20 @@
+# Test-specific gitignore
+
+# Pytest coverage reports
+.coverage
+htmlcov/
+coverage/
+
+# Pytest cache
+__pycache__/
+.pytest_cache/
+
+# Test session files
+test_session/
+
+# Virtual environments
+venv/
+env/
+
+# Log files
+*.log 

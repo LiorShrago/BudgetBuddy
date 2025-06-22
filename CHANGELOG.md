@@ -93,4 +93,35 @@ This changelog tracks all modifications, fixes, and improvements made to the Bud
 - Improve password recovery workflow
 - Add more robust CSRF protection
 - Enhance session security with IP binding
-- Implement progressive session timeout 
+- Implement progressive session timeout
+
+## [2025-01-20]
+
+### Added
+- Enhanced dashboard with Mint-style financial metrics
+- Added net worth calculation and display
+- Added account-specific metrics (credit cards, cash, loans, investments)
+- Added interactive dropdowns for account details
+- Added comprehensive test suite for dashboard functionality
+- Added proper z-index handling for dropdown menus
+- Added vim and openssh to development environment
+- Added auth fixture to conftest.py for authentication testing
+- Added sample transaction data files for testing
+- Added comprehensive .gitignore rules
+
+### Changed
+- Restructured project to use src/ directory structure
+- Updated import paths to use src prefix
+- Improved code organization and maintainability
+- Replaced legacy statistic tiles with modern financial metric cards
+- Updated template comments to use Jinja2 style
+- Updated .replit configuration to include additional development tools
+- Updated test configuration in conftest.py
+
+### Fixed
+- Resolved merge conflicts in routes.py and dashboard.html
+- Fixed account balance calculations
+- Improved error handling in financial calculations
+- Fixed dropdown menu z-index issues
+- Fixed viewAccount function to properly route to accounts page
+- Fixed git tracking of generated files (database, session files, etc.) 

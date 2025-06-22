@@ -13,47 +13,170 @@
     </div>
 </div>
 
-<!-- Summary Cards -->
+{# Financial Metrics Cards #}
 <div class="row g-4 mb-4">
+    {# Net Worth Card #}
     <div class="col-md-4">
-        <div class="card bg-primary text-white">
+        <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h5 class="card-title">Total Balance</h5>
-                        <h2 class="mb-0">${{ "%.2f"|format(total_balance) }}</h2>
-                    </div>
-                    <i data-feather="dollar-sign" style="width: 48px; height: 48px;"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="card-title">Active Accounts</h5>
-                        <h2 class="mb-0">{{ total_accounts }}</h2>
-                    </div>
-                    <i data-feather="credit-card" style="width: 48px; height: 48px;"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card bg-info text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="card-title">This Month</h5>
-                        <h2 class="mb-0">
-                            ${{ "%.2f"|format(spending_by_category|sum(attribute=1) or 0) }}
+                        <h5 class="card-title">Net Worth</h5>
+                        <h2 class="mb-0 {% if net_worth >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            ${{ "%.2f"|format(net_worth) }}
                         </h2>
                     </div>
-                    <i data-feather="trending-down" style="width: 48px; height: 48px;"></i>
+                    <div class="dropdown">
+                        <button class="btn btn-link text-muted" type="button" data-bs-toggle="dropdown">
+                            <i data-feather="more-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">Top Assets</h6></li>
+                            {% for account in asset_accounts %}
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="viewAccount({{ account.id }})">
+                                    {{ account.name }}
+                                    <span class="float-end text-success">${{ "%.2f"|format(account.balance) }}</span>
+                                </a>
+                            </li>
+                            {% endfor %}
+                            {% if not asset_accounts %}
+                            <li><span class="dropdown-item text-muted">No assets found</span></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Credit Cards Card #}
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Credit Cards</h5>
+                        <h2 class="mb-0 text-danger">${{ "%.2f"|format(credit_cards_total) }}</h2>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-link text-muted" type="button" data-bs-toggle="dropdown">
+                            <i data-feather="more-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">Credit Card Accounts</h6></li>
+                            {% for account in credit_card_accounts %}
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="viewAccount({{ account.id }})">
+                                    {{ account.name }}
+                                    <span class="float-end text-danger">${{ "%.2f"|format(account.balance) }}</span>
+                                </a>
+                            </li>
+                            {% endfor %}
+                            {% if not credit_card_accounts %}
+                            <li><span class="dropdown-item text-muted">No credit cards found</span></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Cash Card #}
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Cash</h5>
+                        <h2 class="mb-0 text-success">${{ "%.2f"|format(cash_total) }}</h2>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-link text-muted" type="button" data-bs-toggle="dropdown">
+                            <i data-feather="more-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">Cash & Checking Accounts</h6></li>
+                            {% for account in cash_accounts %}
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="viewAccount({{ account.id }})">
+                                    {{ account.name }}
+                                    <span class="float-end text-success">${{ "%.2f"|format(account.balance) }}</span>
+                                </a>
+                            </li>
+                            {% endfor %}
+                            {% if not cash_accounts %}
+                            <li><span class="dropdown-item text-muted">No cash accounts found</span></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Loans Card #}
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Loans</h5>
+                        <h2 class="mb-0 text-danger">${{ "%.2f"|format(loans_total) }}</h2>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-link text-muted" type="button" data-bs-toggle="dropdown">
+                            <i data-feather="more-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">Loan Accounts</h6></li>
+                            {% for account in loan_accounts %}
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="viewAccount({{ account.id }})">
+                                    {{ account.name }}
+                                    <span class="float-end text-danger">${{ "%.2f"|format(account.balance) }}</span>
+                                </a>
+                            </li>
+                            {% endfor %}
+                            {% if not loan_accounts %}
+                            <li><span class="dropdown-item text-muted">No loans found</span></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Investments Card #}
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Investments</h5>
+                        <h2 class="mb-0 text-success">${{ "%.2f"|format(investments_total) }}</h2>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-link text-muted" type="button" data-bs-toggle="dropdown">
+                            <i data-feather="more-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">Investment Accounts</h6></li>
+                            {% for account in investment_accounts %}
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="viewAccount({{ account.id }})">
+                                    {{ account.name }}
+                                    <span class="float-end text-success">${{ "%.2f"|format(account.balance) }}</span>
+                                </a>
+                            </li>
+                            {% endfor %}
+                            {% if not investment_accounts %}
+                            <li><span class="dropdown-item text-muted">No investments found</span></li>
+                            {% endif %}
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -297,8 +420,36 @@
 .chart-container canvas {
     max-height: 100%;
 }
+
+/* Fix dropdown z-index issues */
+.dropdown-menu {
+    z-index: 9999 !important;
+}
+
+.dropdown.show .dropdown-menu {
+    z-index: 9999 !important;
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script>
+// Function to view account details
+function viewAccount(accountId) {
+    window.location.href = `/accounts?highlight=${accountId}`;
+}
+
+// Handle dropdown menu z-index
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdowns = document.querySelectorAll('.dropdown');
+    dropdowns.forEach(dropdown => {
+        dropdown.addEventListener('show.bs.dropdown', function() {
+            this.querySelector('.dropdown-menu').classList.add('dropdown-active');
+        });
+        dropdown.addEventListener('hide.bs.dropdown', function() {
+            this.querySelector('.dropdown-menu').classList.remove('dropdown-active');
+        });
+    });
+});
+</script>
 {% endblock %}

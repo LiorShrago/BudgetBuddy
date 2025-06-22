@@ -264,4 +264,47 @@ def test_categories(app, test_user):
         for category in categories:
             category_ids.append(category.id)
     
-    return category_ids 
+    return category_ids
+
+
+@pytest.fixture
+def auth(client):
+    """
+    Authentication fixture for tests.
+    
+    This fixture provides helper functions for authentication operations
+    like login, logout, and registration.
+    
+    Args:
+        client: The Flask test client fixture
+        
+    Returns:
+        AuthActions: An object with authentication helper methods
+    """
+    class AuthActions:
+        def __init__(self, client):
+            self._client = client
+        
+        def login(self, username='testuser', password='Test@123456'):
+            return self._client.post(
+                '/login',
+                data={'username': username, 'password': password},
+                follow_redirects=True
+            )
+        
+        def logout(self):
+            return self._client.get('/logout', follow_redirects=True)
+        
+        def register(self, username='newuser', email='new@example.com', password='Test@123456'):
+            return self._client.post(
+                '/register',
+                data={
+                    'username': username,
+                    'email': email,
+                    'password': password,
+                    'confirm_password': password
+                },
+                follow_redirects=True
+            )
+    
+    return AuthActions(client) 

@@ -8,7 +8,6 @@ from werkzeug.utils import secure_filename
 from sqlalchemy import func, and_, or_
 from app import app, db
 from src.models.models import User, Account, Category, Transaction, Budget, BudgetItem, CategorizationRule, LoginAttempt
-
 from src.routs.csv_parsers import get_parser_by_format, detect_csv_format
 from src.services.categorization import auto_categorize_transaction
 from src.services.ai_categorizer import auto_categorize_uncategorized_transactions, get_categorization_suggestions
@@ -273,9 +272,122 @@ def security_log():
     return render_template('security_log.html', attempts=attempts)
 
 
+def calculate_net_worth(user_id):
+    """Calculate net worth: (cash + savings + investments) - (loans + credit cards)"""
+    assets = db.session.query(func.sum(Account.balance)).filter(
+        Account.user_id == user_id,
+        Account.is_active == True,
+        Account.account_type.in_(['checking', 'savings', 'investment', 'cash'])
+    ).scalar() or 0
+    
+    liabilities = db.session.query(func.sum(Account.balance)).filter(
+        Account.user_id == user_id,
+        Account.is_active == True,
+        Account.account_type.in_(['credit_card', 'loan', 'mortgage'])
+    ).scalar() or 0
+    
+    return float(assets) - float(liabilities)
+
+
+def calculate_credit_cards_total(user_id):
+    """Calculate total credit card balances"""
+    total = db.session.query(func.sum(Account.balance)).filter(
+        Account.user_id == user_id,
+        Account.is_active == True,
+        Account.account_type == 'credit_card'
+    ).scalar() or 0
+    return float(total)
+
+
+def calculate_cash_total(user_id):
+    """Calculate total cash and checking account balances"""
+    total = db.session.query(func.sum(Account.balance)).filter(
+        Account.user_id == user_id,
+        Account.is_active == True,
+        Account.account_type.in_(['checking', 'cash'])
+    ).scalar() or 0
+    return float(total)
+
+
+def calculate_savings_total(user_id):
+    """Calculate total savings account balances"""
+    total = db.session.query(func.sum(Account.balance)).filter(
+        Account.user_id == user_id,
+        Account.is_active == True,
+        Account.account_type == 'savings'
+    ).scalar() or 0
+    return float(total)
+
+
+def calculate_loans_total(user_id):
+    """Calculate total loan balances"""
+    total = db.session.query(func.sum(Account.balance)).filter(
+        Account.user_id == user_id,
+        Account.is_active == True,
+        Account.account_type.in_(['loan', 'mortgage'])
+    ).scalar() or 0
+    return float(total)
+
+
+def calculate_investments_total(user_id):
+    """Calculate total investment account balances"""
+    total = db.session.query(func.sum(Account.balance)).filter(
+        Account.user_id == user_id,
+        Account.is_active == True,
+        Account.account_type == 'investment'
+    ).scalar() or 0
+    return float(total)
+
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    # Calculate account totals
+    net_worth = calculate_net_worth(current_user.id)
+    credit_cards_total = calculate_credit_cards_total(current_user.id)
+    cash_total = calculate_cash_total(current_user.id)
+    savings_total = calculate_savings_total(current_user.id)
+    loans_total = calculate_loans_total(current_user.id)
+    investments_total = calculate_investments_total(current_user.id)
+    
+    # Get top accounts for each category
+    credit_card_accounts = Account.query.filter(
+        Account.user_id == current_user.id,
+        Account.is_active == True,
+        Account.account_type == 'credit_card'
+    ).order_by(Account.balance.desc()).limit(3).all()
+    
+    cash_accounts = Account.query.filter(
+        Account.user_id == current_user.id,
+        Account.is_active == True,
+        Account.account_type.in_(['checking', 'cash'])
+    ).order_by(Account.balance.desc()).limit(3).all()
+    
+    savings_accounts = Account.query.filter(
+        Account.user_id == current_user.id,
+        Account.is_active == True,
+        Account.account_type == 'savings'
+    ).order_by(Account.balance.desc()).limit(3).all()
+    
+    loan_accounts = Account.query.filter(
+        Account.user_id == current_user.id,
+        Account.is_active == True,
+        Account.account_type.in_(['loan', 'mortgage'])
+    ).order_by(Account.balance.desc()).limit(3).all()
+    
+    investment_accounts = Account.query.filter(
+        Account.user_id == current_user.id,
+        Account.is_active == True,
+        Account.account_type == 'investment'
+    ).order_by(Account.balance.desc()).limit(3).all()
+    
+    # Combine top asset accounts for net worth dropdown
+    asset_accounts = Account.query.filter(
+        Account.user_id == current_user.id,
+        Account.is_active == True,
+        Account.account_type.in_(['checking', 'savings', 'investment', 'cash'])
+    ).order_by(Account.balance.desc()).limit(3).all()
+    
     # Get summary data
     total_balance = db.session.query(func.sum(Account.balance)).filter_by(user_id=current_user.id).scalar() or 0
     total_accounts = Account.query.filter_by(user_id=current_user.id, is_active=True).count()
@@ -300,7 +412,19 @@ def dashboard():
                          total_balance=total_balance,
                          total_accounts=total_accounts,
                          recent_transactions=recent_transactions,
-                         spending_by_category=spending_by_category)
+                         spending_by_category=spending_by_category,
+                         net_worth=net_worth,
+                         credit_cards_total=credit_cards_total,
+                         cash_total=cash_total,
+                         savings_total=savings_total,
+                         loans_total=loans_total,
+                         investments_total=investments_total,
+                         credit_card_accounts=credit_card_accounts,
+                         cash_accounts=cash_accounts,
+                         savings_accounts=savings_accounts,
+                         loan_accounts=loan_accounts,
+                         investment_accounts=investment_accounts,
+                         asset_accounts=asset_accounts)
 
 
 @app.route('/accounts')
