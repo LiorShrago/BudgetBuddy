@@ -7,11 +7,10 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
 from sqlalchemy import func, and_, or_
 from app import app, db
-from models import User, Account, Category, Transaction, Budget, BudgetItem, CategorizationRule, LoginAttempt
+from models import User, Account, Transaction, Budget, BudgetItem, LoginAttempt
 
 from csv_parsers import get_parser_by_format, detect_csv_format
-from categorization import auto_categorize_transaction
-from ai_categorizer import auto_categorize_uncategorized_transactions, get_categorization_suggestions
+
 
 
 def log_login_attempt(user_id, username, success=False, two_factor_used=False):
@@ -86,8 +85,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         
-        # Create default categories
-        create_default_categories(user.id)
+
         
         flash('Registration successful', 'success')
         return redirect(url_for('login'))
@@ -303,22 +301,10 @@ def dashboard():
         Account.user_id == current_user.id
     ).order_by(Transaction.date.desc()).limit(10).all()
     
-    # Get spending by category for current month
-    current_month = date.today().replace(day=1)
-    spending_by_category = db.session.query(
-        Category.name,
-        func.sum(Transaction.amount).label('total')
-    ).join(Transaction).join(Account).filter(
-        Account.user_id == current_user.id,
-        Transaction.date >= current_month,
-        Transaction.transaction_type == 'expense'
-    ).group_by(Category.name).all()
-    
     return render_template('dashboard.html', 
                          total_balance=total_balance,
                          total_accounts=total_accounts,
-                         recent_transactions=recent_transactions,
-                         spending_by_category=spending_by_category)
+                         recent_transactions=recent_transactions)
 
 
 @app.route('/accounts')
@@ -436,8 +422,7 @@ def transactions():
     # Build query
     query = Transaction.query.join(Account).filter(Account.user_id == current_user.id)
     
-    if category_filter:
-        query = query.filter(Transaction.category_id == category_filter)
+
     
     if account_filter:
         query = query.filter(Transaction.account_id == account_filter)
@@ -453,12 +438,10 @@ def transactions():
     )
     
     # Get filter options
-    categories = Category.query.filter_by(user_id=current_user.id).all()
     accounts = Account.query.filter_by(user_id=current_user.id).all()
     
     return render_template('transactions.html',
                          transactions=transactions_data,
-                         categories=categories,
                          accounts=accounts)
 
 
@@ -568,32 +551,7 @@ def add_budget():
     return redirect(url_for('budgets'))
 
 
-@app.route('/categories')
-@login_required
-def categories():
-    user_categories = Category.query.filter_by(user_id=current_user.id).all()
-    return render_template('categories.html', categories=user_categories)
 
-
-@app.route('/categories/add', methods=['POST'])
-@login_required
-def add_category():
-    name = request.form['name']
-    parent_id = request.form.get('parent_id') or None
-    color = request.form.get('color', '#007bff')
-    
-    category = Category(
-        user_id=current_user.id,
-        name=name,
-        parent_id=parent_id,
-        color=color
-    )
-    
-    db.session.add(category)
-    db.session.commit()
-    
-    flash('Category added successfully', 'success')
-    return redirect(url_for('categories'))
 
 
 @app.route('/api/spending-chart')

@@ -31,7 +31,6 @@ class User(UserMixin, db.Model):
     # Relationships
     accounts = db.relationship('Account', backref='user', lazy=True, cascade='all, delete-orphan')
     budgets = db.relationship('Budget', backref='user', lazy=True, cascade='all, delete-orphan')
-    categories = db.relationship('Category', backref='user', lazy=True, cascade='all, delete-orphan')
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -177,26 +176,12 @@ class Account(db.Model):
     transactions = db.relationship('Transaction', backref='account', lazy=True, cascade='all, delete-orphan')
 
 
-class Category(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    name = db.Column(db.String(100), nullable=False)
-    parent_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=True)
-    color = db.Column(db.String(7), default='#007bff')  # Hex color code
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Self-referential relationship for subcategories
-    subcategories = db.relationship('Category', backref=db.backref('parent', remote_side=[id]), lazy=True)
-    
-    # Relationships
-    transactions = db.relationship('Transaction', backref='category', lazy=True)
-    budget_items = db.relationship('BudgetItem', backref='category', lazy=True)
+
 
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     account_id = db.Column(db.Integer, db.ForeignKey('account.id'), nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=True)
     date = db.Column(db.Date, nullable=False)
     description = db.Column(db.Text, nullable=False)
     amount = db.Column(db.Numeric(10, 2), nullable=False)
@@ -229,22 +214,10 @@ class Budget(db.Model):
 class BudgetItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'), nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
     allocated_amount = db.Column(db.Numeric(10, 2), nullable=False)
 
 
-class CategorizationRule(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    keyword = db.Column(db.String(200), nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
-    priority = db.Column(db.Integer, default=1)
-    is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    user = db.relationship('User', backref='categorization_rules')
-    category = db.relationship('Category', backref='categorization_rules')
+
 
 
 class LoginAttempt(db.Model):
