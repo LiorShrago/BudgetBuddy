@@ -1,0 +1,204 @@
+# BudgetBuddy Project Changelog
+
+## Table of Contents
+- [Overview](#overview)
+- [Change Log](#change-log)
+  - [2025-07-01 Enhanced AI Categorization](#2025-07-01)
+  - [2025-06-22 Project Restructuring](#2025-06-22)
+  - [2025-06-20 Authentication System Improvements](#2025-06-20)
+  - [2025-01-20 Dashboard Enhancements](#2025-01-20)
+- [Known Issues](#known-issues)
+- [Future Improvements](#future-improvements)
+
+## Overview
+This changelog tracks all modifications, fixes, and improvements made to the BudgetBuddy project. Each entry includes detailed notes about the changes, reasoning, and impacts on the system.
+
+## Change Log
+
+### 2025-07-01
+
+#### Enhanced AI Categorization
+- **Added enhanced AI categorization system:**
+  - Created `enhanced_ai_categorizer.py` with online research capabilities using Perplexity API
+  - Implemented `research_and_categorize_transaction()` function that searches online for transaction descriptions
+  - Added `enhanced_auto_categorize_uncategorized_transactions()` for improved batch processing
+  - Created new API endpoints: `/api/ai-research-categorize` and `/api/ai-auto-categorize-enhanced`
+  - Updated `categorize.html` template with new "AI Research & Categorize" and "Enhanced Auto-Categorize" buttons
+  - Added JavaScript functions for enhanced AI features in `categorize.js`
+  - Created comprehensive test suite and documentation
+  - **Issue:** Original AI categorization relied only on pattern matching without understanding what purchases were for
+  - **Root cause:** Need for better context about merchants and transaction purposes to improve accuracy
+  - **Files affected:**
+    - `src/services/enhanced_ai_categorizer.py` (new)
+    - `src/routs/routes.py`
+    - `templates/categorize.html`
+    - `static/js/categorize.js`
+    - Test files in `tests/` directory
+    - Documentation in `docs/` directory
+
+### 2025-06-22
+
+#### Project Restructuring
+- **Restructured project directory:**
+  - Reorganized codebase into a more modular structure
+  - Moved models to `src/models/`
+  - Moved routes to `src/routs/`
+  - Moved services to `src/services/`
+  - Renamed `project_changelog.md` to `CHANGELOG.md` for better standardization
+  - Updated import paths across the project
+  - **Issue:** Project structure was flat and difficult to maintain
+  - **Root cause:** Initial development focused on functionality over structure
+
+### 2025-06-20
+
+#### Authentication System Improvements
+- **Fixed Two-Factor Authentication (2FA) with Microsoft Authenticator:**
+  - Enhanced TOTP validation with more robust error handling and a wider validation window
+  - Added input normalization for TOTP codes and backup codes
+  - Improved verification with better exception handling
+  - Added specific instructions for Microsoft Authenticator in the setup UI
+  - **Issue:** "Invalid code" errors when using Microsoft Authenticator for 2FA
+  - **Root cause:** Time synchronization issues and limited validation window
+
+- **Fixed login form two-factor authentication flow:**
+  - Modified hidden inputs in the 2FA form to correctly store username using `{{ username }}` template variable instead of session values
+  - Added `autocomplete="off"` to sensitive inputs for better security
+  - **Issue:** Login form was storing user ID instead of username during 2FA flow, breaking the authentication process
+  - **Root cause:** The template was using `session.get('pending_user_id')` as the username value
+
+- **Updated routes.py login handler:**
+  - Added support for storing and passing username between requests using both session variables and template rendering
+  - Modified password verification to accept 'verified' as a valid password during 2FA flow
+  - Added `session['pending_username']` to preserve username during multi-step authentication
+  - **Issue:** Username was lost between the initial login and 2FA verification steps
+
+- **Improved session management:**
+  - Configured Flask session with secure settings
+  - Added filesystem-based session storage in dedicated 'flask_session' directory
+  - Set session lifetime to 30 minutes
+  - Generated secure random secret key if environment variable not set
+  - **Issue:** Sessions were not properly configured for secure persistence
+
+#### User Interface Improvements
+- **Enhanced 2FA setup user experience:**
+  - Added detailed troubleshooting guidance for common TOTP issues
+  - Included specific setup instructions for Microsoft Authenticator
+  - Improved error messaging with more specific feedback
+  - **Issue:** Users were confused when encountering 2FA setup problems
+
+- **Updated front-end dependencies:**
+  - Replaced custom Bootstrap CSS with standard Bootstrap 5.3.0
+  - Added jQuery 3.6.0 for better JavaScript component support
+  - **Issue:** UI components might not have been functioning correctly due to missing or incompatible dependencies
+
+#### Testing Improvements
+- **Added comprehensive test suite:**
+  - Created authentication tests covering registration, login, and 2FA
+  - Added security tests for session management and access control
+  - Implemented API endpoint tests with error handling verification
+  - Created manual testing checklist for features requiring human verification
+  - **Issue:** Lack of automated testing made regression detection difficult
+
+### 2025-01-20
+
+#### Dashboard Enhancements
+
+##### Initial Dashboard Improvements (06:12:58 UTC)
+- **Created initial dashboard changes:**
+  - Replaced three legacy statistic tiles with five Mint-style cards (Net Worth, Credit Cards, Cash, Loans, Investments) with interactive dropdowns
+  - **Files affected:**
+    - `templates/dashboard.html`
+
+##### Calculation Functions (06:20:30 UTC)
+- **Added financial calculation functions:**
+  - Implemented calculation functions for net worth, credit cards, cash, loans, and investments totals based on user accounts
+  - Added proper positive/negative styling for financial data
+  - **Files affected:**
+    - `routes.py`
+    - `templates/dashboard.html`
+
+##### Real Account Data Integration (07:02:00 UTC)
+- **Enhanced data display:**
+  - Added real account data queries for dashboard dropdown menus, replacing hardcoded sample data with actual user account information
+  - Updated all five statistic card dropdown menus to display real account data instead of placeholder values
+  - Added proper conditional rendering for empty states
+  - Fixed viewAccount function to properly route to accounts page with highlighting
+  - **Files affected:**
+    - `routes.py`
+    - `templates/dashboard.html`
+
+##### UI Fixes (07:10:00 UTC)
+- **Fixed dropdown menu z-index issues:**
+  - Increased z-index to 9999 
+  - Added dropdown-active class management to ensure dropdowns appear above all other page elements
+  - **Files affected:**
+    - `templates/dashboard.html`
+
+- **Added new features:**
+  - Net worth calculation and display
+  - Account-specific metrics (credit cards, cash, loans, investments)
+  - Interactive dropdowns for account details
+  - Comprehensive test suite for dashboard functionality
+  - Proper z-index handling for dropdown menus
+  - Development environment improvements (vim and openssh)
+  - Authentication testing fixtures in conftest.py
+  - Sample transaction data files for testing
+  - Comprehensive .gitignore rules and environment configuration
+  - Secure secret key generation script
+  - `.env.example` template
+
+- **Changed infrastructure:**
+  - Restructured project to use src/ directory structure
+  - Updated import paths to use src prefix
+  - Improved code organization and maintainability
+  - Replaced legacy statistic tiles with modern financial metric cards
+  - Updated template comments to use Jinja2 style
+  - Updated .replit configuration for development tools
+  - Enhanced test configuration in conftest.py
+  - Improved security with environment-based configuration
+
+- **Fixed issues:**
+  - Resolved merge conflicts in routes.py and dashboard.html
+  - Fixed account balance calculations
+  - Improved error handling in financial calculations
+  - Fixed dropdown menu z-index issues
+  - Fixed git tracking of generated files (database, session files, etc.)
+  - Fixed security issues with hardcoded configuration
+
+- **Security enhancements:**
+  - Moved sensitive configuration to environment variables
+  - Added secure secret key generation
+  - Enhanced session security settings
+  - Added rate limiting configuration
+  - Improved database connection security
+
+## Known Issues
+- None documented yet
+
+## Future Improvements
+- Implement remember-me functionality for login
+- Add email verification during registration
+- Improve password recovery workflow
+- Add more robust CSRF protection
+- Enhance session security with IP binding
+- Implement progressive session timeout
+
+---
+
+## Changelog Template
+
+When adding new entries, please use the following template:
+
+```
+### YYYY-MM-DD
+
+#### Feature or Component Name
+- **Added/Changed/Fixed/Removed description:**
+  - Detail 1
+  - Detail 2
+  - **Issue:** Description of the issue that prompted this change
+  - **Root cause:** What caused the issue
+  - **Files affected:**
+    - File path 1
+    - File path 2
+```
