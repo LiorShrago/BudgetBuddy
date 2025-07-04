@@ -1,0 +1,52 @@
+---
+description: Core rules for Budget Buddy Flask Web-App
+globs: ["*"]
+alwaysApply: true
+---
+
+# Budget Buddy - Flask Web Application
+
+This file provides a high-level overview of the architecture and standards for the Budget Buddy project.
+For detailed rules, please refer to the specific files in the .cursor/rules/ directory.
+
+## Architecture
+
+- Application factory (`create_app`) + Blueprints per feature
+- Environment configs via `config.py`; secrets via env vars
+- See .cursor/rules/flask.mdc for detailed Flask guidelines
+
+## Documentation
+
+- Every change MUST update CHANGELOG.md (Keep a Changelog format)
+- Add ADR markdown in docs/adr/ for significant decisions
+- See .cursor/rules/core.mdc for documentation requirements
+
+## Code Quality
+
+- Format with Black; follow PEP 8 strictly
+- All functions/classes MUST have type hints and Google-style docstrings
+- See .cursor/rules/python.mdc for Python standards
+
+## Templates and Frontend
+
+- Templates/base.html can be modified to add new blocks or parameters, but existing structure must be preserved
+- Use semantic HTML and proper accessibility attributes
+- See .cursor/rules/templates.mdc and .cursor/rules/frontend.mdc
+
+## Security & Performance
+
+- Enable CSRF protection and proper input validation
+- Cache heavy routes and optimize database queries
+- See .cursor/rules/security.mdc for security best practices
+
+## Database
+
+- Use SQLAlchemy parameter binding for all database queries
+- Direct SQL editing is forbidden; use Flask-Migrate for schema changes
+- See .cursor/rules/database.mdc for database guidelines
+
+## Testing
+
+- Target ≥ 90% branch coverage with pytest
+- Always propose tests before implementing features
+- See .cursor/rules/testing.mdc for testing guidelines

@@ -1,18 +1,26 @@
-# --- CORE WORKFLOW -------------------------------------------------
-- Always propose tests in tests/ before changing src/.
-- Abort if CHANGELOG.md not updated for the current date.
-- Never push code that produces pylint > 8.0 or flake8 errors > 0.
+# Budget Buddy - Flask Web Application Standards
 
-# --- LOOP-PREVENTION ----------------------------------------------
-- Limit self-generated follow-up prompts to 3; then request human input.
+This file contains high-level standards for the Budget Buddy project.
+For detailed rules, see the specific files in .cursor/rules/ directory.
 
-# --- BUG-AVOIDANCE -------------------------------------------------
-- Prefer pure functions; avoid hidden state in Jinja globals.
-- SQL queries must use SQLAlchemy parameter binding (no f-strings).
+# --- CORE DEVELOPMENT PRINCIPLES -----------------------------------
+- See .cursor/rules/core.mdc for workflow, commits, and quality standards
+- See .cursor/rules/python.mdc for Python coding standards
+- See .cursor/rules/flask.mdc for Flask-specific patterns
 
-# --- FILE SAFETY ---------------------------------------------------
-- Treat templates/base.html, static/css/main.css as READ-ONLY unless CONFIRM:READONLY bypass supplied.
+# --- FRONTEND AND TEMPLATES ----------------------------------------
+- See .cursor/rules/templates.mdc for HTML/Jinja guidelines
+- See .cursor/rules/frontend.mdc for JavaScript and CSS standards
 
+# --- DATA AND STORAGE ----------------------------------------------
+- See .cursor/rules/database.mdc for SQLAlchemy and migrations
 
-#--- CHANGE LOG --------------------------------------------------
-- For every accepted diff, append an entry to docs/CHANGELOG.md using docs/changelog_template.md.
+# --- QUALITY ASSURANCE ---------------------------------------------
+- See .cursor/rules/testing.mdc for testing requirements
+- Abort if CHANGELOG.md not updated for the current date
+
+# --- SECURITY -----------------------------------------------------
+- See .cursor/rules/security.mdc for security best practices
+
+# --- FILE SAFETY --------------------------------------------------
+- Templates/base.html can be modified to add new blocks or parameters, but existing structure and blocks must be preserved

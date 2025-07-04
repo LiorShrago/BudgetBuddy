@@ -1,15 +1,45 @@
 ######## TEMPLATE ########
-## {{date}}
-### Added
-### Changed
-### Fixed
-#########################
 
+## {{date}}
+
+### Added
+
+### Changed
+
+### Fixed
+
+#########################
 
 # BudgetBuddy Project Changelog
 
+## 2023-08-03
+
+### Added
+
+- Added comprehensive rule structure in .cursor/rules/ directory
+- Added specific rule files for core development, Python coding standards, Flask patterns, templates, frontend, database, testing, and security
+- Added clear guidance on error handling for different types of errors
+- Added security headers and CSP configuration recommendations
+- Added JavaScript module organization and bundling recommendations
+
+### Changed
+
+- Consolidated redundant rules into a cohesive structure
+- Clarified base.html modification policy to allow adding new blocks while preserving existing structure
+- Made SQL usage guidelines consistent across rule files
+- Updated frontend standards with modern tooling recommendations
+- Reorganized rule structure with clear categories and subcategories
+- Improved documentation requirements with consolidated guidance
+
+### Fixed
+
+- Resolved contradiction between base.html being read-only and needed for template inheritance
+- Fixed inconsistent SQL usage restrictions across different rule files
+- Addressed missing guidance for error handling specific error types
+- Added previously missing environment variable handling guidance
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Change Log](#change-log)
   - [Authentication System](#authentication-system)
@@ -21,11 +51,13 @@
 - [Future Improvements](#future-improvements)
 
 ## Overview
+
 This changelog tracks all modifications, fixes, and improvements made to the BudgetBuddy project. Each entry includes detailed notes about the changes, reasoning, and impacts on the system.
 
 ## Change Log
 
 ### Backend
+
 - **[2025-06-22]** Restructured project directory:
   - Reorganized codebase into a more modular structure
   - Moved models to src/models/
@@ -37,7 +69,9 @@ This changelog tracks all modifications, fixes, and improvements made to the Bud
   - Root cause: Initial development focused on functionality over structure
 
 ### Authentication System
+
 - **[2025-06-20]** Fixed Two-Factor Authentication (2FA) with Microsoft Authenticator:
+
   - Enhanced TOTP validation with more robust error handling and a wider validation window
   - Added input normalization for TOTP codes and backup codes
   - Improved verification with better exception handling
@@ -46,12 +80,14 @@ This changelog tracks all modifications, fixes, and improvements made to the Bud
   - Root cause: Time synchronization issues and limited validation window
 
 - **[2025-06-20]** Fixed login form two-factor authentication flow:
+
   - Modified hidden inputs in the 2FA form to correctly store username using `{{ username }}` template variable instead of session values
   - Added `autocomplete="off"` to sensitive inputs for better security
   - Issue: Login form was storing user ID instead of username during 2FA flow, breaking the authentication process
   - Root cause: The template was using `session.get('pending_user_id')` as the username value
 
 - **[2025-06-20]** Updated routes.py login handler:
+
   - Added support for storing and passing username between requests using both session variables and template rendering
   - Modified password verification to accept 'verified' as a valid password during 2FA flow
   - Added `session['pending_username']` to preserve username during multi-step authentication
@@ -65,7 +101,9 @@ This changelog tracks all modifications, fixes, and improvements made to the Bud
   - Issue: Sessions were not properly configured for secure persistence
 
 ### User Interface
+
 - **[2025-06-20]** Enhanced 2FA setup user experience:
+
   - Added detailed troubleshooting guidance for common TOTP issues
   - Included specific setup instructions for Microsoft Authenticator
   - Improved error messaging with more specific feedback
@@ -77,6 +115,7 @@ This changelog tracks all modifications, fixes, and improvements made to the Bud
   - Issue: UI components might not have been functioning correctly due to missing or incompatible dependencies
 
 ### Testing
+
 - **[2025-06-20]** Added comprehensive test suite:
   - Created authentication tests covering registration, login, and 2FA
   - Added security tests for session management and access control
@@ -85,9 +124,11 @@ This changelog tracks all modifications, fixes, and improvements made to the Bud
   - Issue: Lack of automated testing made regression detection difficult
 
 ### Known Issues
+
 - None documented yet
 
 ### Future Improvements
+
 - Implement remember-me functionality for login
 - Add email verification during registration
 - Improve password recovery workflow
@@ -98,6 +139,7 @@ This changelog tracks all modifications, fixes, and improvements made to the Bud
 ## [2025-01-20]
 
 ### Added
+
 - Enhanced dashboard with Mint-style financial metrics
 - Added net worth calculation and display
 - Added account-specific metrics (credit cards, cash, loans, investments)
@@ -113,6 +155,7 @@ This changelog tracks all modifications, fixes, and improvements made to the Bud
 - Added .env.example template
 
 ### Changed
+
 - Restructured project to use src/ directory structure
 - Updated import paths to use src prefix
 - Improved code organization and maintainability
@@ -123,6 +166,7 @@ This changelog tracks all modifications, fixes, and improvements made to the Bud
 - Enhanced security with environment-based configuration
 
 ### Fixed
+
 - Resolved merge conflicts in routes.py and dashboard.html
 - Fixed account balance calculations
 - Improved error handling in financial calculations
@@ -132,6 +176,7 @@ This changelog tracks all modifications, fixes, and improvements made to the Bud
 - Fixed security issues with hardcoded configuration
 
 ### Security
+
 - Moved sensitive configuration to environment variables
 - Added secure secret key generation
 - Enhanced session security settings
@@ -141,6 +186,7 @@ This changelog tracks all modifications, fixes, and improvements made to the Bud
 ## [2025-01-20]
 
 ### Added
+
 - Enhanced dashboard with Mint-style financial metrics
 - Added net worth calculation and display
 - Added account-specific metrics (credit cards, cash, loans, investments)
@@ -156,6 +202,7 @@ This changelog tracks all modifications, fixes, and improvements made to the Bud
 - Added .env.example template
 
 ### Changed
+
 - Restructured project to use src/ directory structure
 - Updated import paths to use src prefix
 - Improved code organization and maintainability
@@ -166,6 +213,7 @@ This changelog tracks all modifications, fixes, and improvements made to the Bud
 - Enhanced security with environment-based configuration
 
 ### Fixed
+
 - Resolved merge conflicts in routes.py and dashboard.html
 - Fixed account balance calculations
 - Improved error handling in financial calculations
@@ -175,8 +223,9 @@ This changelog tracks all modifications, fixes, and improvements made to the Bud
 - Fixed security issues with hardcoded configuration
 
 ### Security
+
 - Moved sensitive configuration to environment variables
 - Added secure secret key generation
 - Enhanced session security settings
 - Added rate limiting configuration
-- Improved database connection security 
+- Improved database connection security

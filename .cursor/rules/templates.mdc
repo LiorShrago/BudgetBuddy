@@ -1,0 +1,30 @@
+---
+description: Combined HTML and Jinja guidelines
+globs: ["*.html"]
+alwaysApply: true
+---
+
+# Templates: HTML and Jinja Guidelines
+
+## HTML Structure and Accessibility
+- Use semantic HTML elements (<section>, <article>, <nav>) not generic <div>
+- All form inputs need contextual aria-labels
+- Ensure responsive design with appropriate viewport meta tags
+- Use proper heading hierarchy (h1-h6)
+
+## Base Template
+- Templates/base.html can be modified to add new blocks or parameters but existing structure and blocks must be preserved
+- When modifying base.html, ensure backward compatibility with existing templates
+
+## Jinja Best Practices
+- Use `{% extends "base.html" %}`; macros for repeated widgets
+- Prefer template inheritance over includes
+- Macros for repeated form fields and buttons
+- Use whitespace suppression `{%-` … `-%}` to avoid extra spaces
+- Escape variables by default (`{{ var|e }}`)
+- Avoid using the `|safe` filter unless absolutely necessary
+
+## Template Organization
+- Organize templates by feature or blueprint
+- Keep reusable components in a shared directory
+- Use consistent naming conventions

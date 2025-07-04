@@ -1,0 +1,34 @@
+---
+description: Database and migration guidelines
+globs: ["*.py"]
+alwaysApply: true
+---
+
+# Database Guidelines
+
+## ORM Usage
+- Use Flask-SQLAlchemy for ORM operations
+- Create models with clear relationships and constraints
+- Use SQLAlchemy's session management properly, ensuring sessions are closed after use
+- Implement proper database query optimization techniques (e.g., eager loading, indexing)
+
+## SQL Safety
+- Use SQLAlchemy parameter binding for all database queries
+- Never use string formatting (f-strings) for SQL queries to avoid SQL injection
+
+## Schema Changes
+- Direct SQL editing is forbidden; use Flask-Migrate for schema changes
+- Never edit .sql files directly
+- Generate a new migration script instead (Flask-Migrate)
+- Ensure migrations are reversible when possible
+
+## Performance
+- Use connection pooling for database connections
+- Index frequently queried columns
+- Optimize queries using explain/analyze
+- Consider caching for frequently accessed, rarely changing data
+
+## Testing
+- Use an isolated test database
+- Reset database between tests or use transactions
+- Mock database calls when appropriate

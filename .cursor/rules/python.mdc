@@ -1,0 +1,48 @@
+---
+description: Python coding standards
+globs: ["*.py"]
+alwaysApply: true
+---
+
+# Python Coding Standards
+
+## Style and Formatting
+- Format with Black; follow PEP 8 strictly
+- Use descriptive variable names with auxiliary verbs (e.g., is_active, has_permission)
+- Use lowercase with underscores for directories and files (e.g., blueprints/user_routes.py)
+
+## Documentation
+- All functions/classes MUST have type hints and Google-style docstrings
+- Example:
+  ```python
+  def process_item(item: dict) -> bool:
+      """Process an item from the queue.
+      
+      Args:
+          item: A dictionary containing item data
+          
+      Returns:
+          bool: True if processing was successful
+          
+      Raises:
+          ValueError: If the item is malformed
+      """
+  ```
+
+## Structure
+- Use functional, declarative programming
+- Avoid classes where possible except for Flask views
+- Prefer iteration and modularization over code duplication
+- Favor named exports for routes and utility functions
+- Use the Receive an Object, Return an Object (RORO) pattern where applicable
+
+## Error Handling
+- Always raise specific errors; log then re-raise
+- Never use `Any`, `@staticmethod`, or bare `Exception`
+- Handle errors and edge cases at the beginning of functions
+- Use early returns for error conditions to avoid deeply nested if statements
+- Place the happy path last in the function for improved readability
+- Avoid unnecessary else statements; use the if-return pattern instead
+- Use guard clauses to handle preconditions and invalid states early
+- Implement proper error logging and user-friendly error messages
+- Use custom error types or error factories for consistent error handling

@@ -1,0 +1,25 @@
+---
+description: Core development principles and workflow
+globs: ["*"]
+alwaysApply: true
+---
+
+# Development Workflow
+
+## Change Management
+- All changes require:
+  1. CHANGELOG.md update using Keep a Changelog format
+  2. Documentation updates in /docs for public APIs
+  3. ADR for significant architectural decisions in docs/adr/
+
+## Version Control
+- Keep commits in Conventional Commit style
+- Respect minimal-diff principle; modify only code requested
+
+## Code Quality
+- Never push code that produces pylint > 8.0 or flake8 errors > 0
+- Format with Black; follow PEP 8 strictly
+
+## Process
+- Always propose tests in tests/ before changing src/
+- Limit self-generated follow-up prompts to 3; then request human input

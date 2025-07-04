@@ -1,0 +1,9 @@
+---
+description: Documentation enforcement
+globs: ["*\*.py",*.md,*\*.md,*.py,]
+alwaysApply: false
+---
+
+- Every public API change MUST be reflected in /docs and CHANGELOG
+- If CHANGELOG already lists this change, do NOT implement duplicate feature
+- Link related ADR (#) in PR description

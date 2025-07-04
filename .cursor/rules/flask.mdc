@@ -1,0 +1,43 @@
+---
+description: Flask-specific patterns and practices
+globs: ["*.py"]
+alwaysApply: true
+---
+
+# Flask Best Practices
+
+## Architecture
+- Use Flask application factory pattern (`create_app()`) for better modularity and testing
+- Organize routes using Flask Blueprints for better code organization
+- Structure: Flask app initialization, blueprints, models, utilities, config
+
+## Configuration
+- Environment configs via `config.py` using class-based structure
+- Secrets via environment variables, never hardcoded
+- Use Flask's config object for managing different configurations (development, testing, production)
+
+## Request Handling
+- Use Flask's before_request, after_request, and teardown_request decorators for request lifecycle management
+- Implement proper request validation using schemas
+
+## Error Handling
+- Register custom error handlers for different types of exceptions
+- Implement proper logging using Flask's app.logger
+- Different error handling strategies for:
+  - Validation errors (400): Return field-specific messages
+  - Authentication errors (401/403): Clear security messages
+  - Not found errors (404): Helpful navigation suggestions
+  - Server errors (500): Log with stack trace, generic user message
+
+## Extensions
+- Utilize Flask extensions for common functionalities:
+  - Flask-SQLAlchemy for ORM
+  - Flask-Migrate for database migrations
+  - Flask-WTF for forms and CSRF protection
+  - Flask-Login for authentication
+  - Flask-Caching for performance
+
+## API Development
+- Use Flask-RESTful for building RESTful APIs with class-based views
+- Document all endpoints using OpenAPI/Swagger
+- Implement consistent response formats

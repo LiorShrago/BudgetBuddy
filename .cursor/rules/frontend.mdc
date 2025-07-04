@@ -1,0 +1,30 @@
+---
+description: CSS and JavaScript standards
+globs: ["*.js", "*.css"]
+alwaysApply: true
+---
+
+# Frontend Standards
+
+## JavaScript
+- Place JS in static/js directory
+- Use camelCase for JavaScript variables and functions
+- Prefer async/await over Promise chains for asynchronous code
+- Organize code in modules when complexity increases
+- Use Webpack/esbuild for JavaScript module bundling in production
+- All production code should be minified
+
+## CSS
+- Tailwind CSS is preferred when available
+- Otherwise, use BEM naming convention for CSS classes
+- Organize CSS by component or feature
+- Avoid inline styles in HTML
+- Prefer CSS variables for theming and repeated values
+- Ensure responsive design with appropriate media queries
+
+## Performance
+- Minimize DOM manipulations
+- Lazy-load resources when possible
+- Optimize image sizes and use responsive images
+- Defer non-critical JavaScript
+- Bundle and minify assets for production

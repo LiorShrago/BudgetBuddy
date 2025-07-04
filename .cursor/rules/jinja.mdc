@@ -1,0 +1,9 @@
+---
+description: Template best practices
+globs: */*.html,*.html
+alwaysApply: false
+---
+
+- Prefer template inheritance over includes
+- Macros for repeated form fields and buttons
+- Use whitespace suppression `{%-` … `-%}` to avoid extra spaces

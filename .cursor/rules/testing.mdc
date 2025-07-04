@@ -1,0 +1,38 @@
+---
+description: Testing requirements and practices
+globs: ["tests/*.py"]
+alwaysApply: true
+---
+
+# Testing Guidelines
+
+## Testing Framework
+- Use pytest for all tests
+- Use fixtures with factory-boy for test data generation
+- Target ≥ 90% branch coverage with `pytest --cov`
+
+## Test Structure
+- Organize tests to mirror application structure
+- Use test fixtures for application setup and teardown
+- Use Flask's test client for integration testing
+
+## Test Types
+- Unit tests: Test individual functions and methods
+- Integration tests: Test component interactions
+- Functional tests: Test end-to-end workflows
+- API tests: Verify API endpoints and responses
+
+## Test Data
+- Use fixtures for test data
+- Reset database state between tests
+- Mock external services
+
+## Test Naming and Organization
+- Test files should be prefixed with `test_`
+- Test functions should be descriptive of what they're testing
+- Group related tests in classes when appropriate
+- Use parametrized tests for testing multiple inputs
+
+## Running Tests
+- Tests should run in isolation
+- CI should run all tests on every commit

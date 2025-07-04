@@ -1,14 +1,17 @@
 ---
-description: 
-globs: 
+globs: [ *.html,*/*.html,]
 alwaysApply: false
 ---
+
 ---
+
 Description: Enforce semantic HTML
-Globs: templates/**/*.html
+Globs: templates/\*_/_.html
+
 ---
 
 # Guidelines
+
 - Use <section>, <article>, <nav> not generic <div>.
 
 - All form inputs need contextual aria-labels.

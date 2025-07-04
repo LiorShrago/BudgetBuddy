@@ -1,0 +1,41 @@
+---
+description: Security best practices
+globs: ["*.py", "*.html"]
+alwaysApply: true
+---
+
+# Security Best Practices
+
+## Authentication and Authorization
+- Implement JWT-based authentication using Flask-JWT-Extended
+- Use decorators for protecting routes that require authentication
+- Store passwords using strong hashing algorithms (e.g., bcrypt)
+- Implement proper session management
+
+## Input Validation
+- Validate all user input server-side
+- Use WTForms or Marshmallow for form/request validation
+- Sanitize inputs to prevent XSS, CSRF, and injection attacks
+
+## CSRF Protection
+- Enable CSRF protection with Flask-WTF
+- Include CSRF tokens in all forms
+- Verify CSRF tokens on form submissions
+
+## Headers and Cookies
+- Set secure cookies with HttpOnly and Secure flags
+- Implement proper Content Security Policy (CSP)
+- Use Flask-Talisman for security headers:
+  - X-Content-Type-Options: nosniff
+  - X-Frame-Options: SAMEORIGIN
+  - X-XSS-Protection: 1; mode=block
+
+## Dependency Management
+- Regularly update dependencies
+- Monitor for security vulnerabilities
+- Use a tool like Safety or Snyk to check for vulnerable dependencies
+
+## Environment Handling
+- Use environment variables for sensitive configuration
+- Never commit secrets or credentials to version control
+- Use different configurations for development, testing, and production
