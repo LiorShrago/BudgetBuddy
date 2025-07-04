@@ -4,23 +4,29 @@ This file contains high-level standards for the Budget Buddy project.
 For detailed rules, see the specific files in .cursor/rules/ directory.
 
 # --- CORE DEVELOPMENT PRINCIPLES -----------------------------------
+
 - See .cursor/rules/core.mdc for workflow, commits, and quality standards
 - See .cursor/rules/python.mdc for Python coding standards
 - See .cursor/rules/flask.mdc for Flask-specific patterns
 
 # --- FRONTEND AND TEMPLATES ----------------------------------------
+
 - See .cursor/rules/templates.mdc for HTML/Jinja guidelines
 - See .cursor/rules/frontend.mdc for JavaScript and CSS standards
 
 # --- DATA AND STORAGE ----------------------------------------------
+
 - See .cursor/rules/database.mdc for SQLAlchemy and migrations
 
 # --- QUALITY ASSURANCE ---------------------------------------------
+
 - See .cursor/rules/testing.mdc for testing requirements
-- Abort if CHANGELOG.md not updated for the current date
+- Abort if docs/CHANGELOG.md not updated for the current date
 
 # --- SECURITY -----------------------------------------------------
+
 - See .cursor/rules/security.mdc for security best practices
 
 # --- FILE SAFETY --------------------------------------------------
+
 - Templates/base.html can be modified to add new blocks or parameters, but existing structure and blocks must be preserved
