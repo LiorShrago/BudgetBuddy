@@ -4,6 +4,7 @@
 
 - [Overview](#overview)
 - [Change Log](#change-log)
+  - [2025-07-10 Unified Financial Overview](#2025-07-10)
   - [2025-07-04 Documentation Reorganization](#2025-07-04)
   - [2025-07-01 Enhanced AI Categorization](#2025-07-01)
   - [2025-06-22 Project Restructuring](#2025-06-22)
@@ -18,6 +19,28 @@
 This changelog tracks all modifications, fixes, and improvements made to the BudgetBuddy project. Each entry includes detailed notes about the changes, reasoning, and impacts on the system.
 
 ## Change Log
+
+### 2025-07-10
+
+#### Unified Financial Overview
+
+- **Created a unified financial management interface:**
+  - Designed and implemented a new `finances.html` template merging accounts and transactions views into a single comprehensive interface
+  - Added a comprehensive filtering system for transactions with date ranges, account types, categories, etc.
+  - Implemented expandable/collapsible account sections with inline transaction management
+  - Created quick filter buttons for common transaction views
+  - Added financial summary cards at the top of the page showing key financial metrics
+  - Implemented inline transaction categorization within account sections
+  - Added bulk categorization capabilities directly in the unified interface
+  - Integrated AI suggestion features for improved transaction categorization
+  - **Issue:** Users needed to navigate between multiple pages to manage finances
+  - **Root cause:** Original design separated accounts, transactions, and categorization views
+  - **Files affected:**
+    - `templates/finances.html` (new)
+    - `static/js/finances.js` (new)
+    - `static/css/custom.css` (updated)
+    - `src/routs/routes.py` (updated)
+    - `templates/base.html` (updated)
 
 ### 2025-07-04
 

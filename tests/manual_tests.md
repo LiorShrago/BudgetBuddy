@@ -103,6 +103,147 @@ This document contains manual testing procedures for features that are difficult
   - [ ] Filter by transaction type
   - [ ] Verify correct transactions shown for each filter
 
+## 💵 Unified Finances Interface
+
+### Page Loading and Navigation
+- [ ] **Initial page load**
+  - [ ] Verify financial summary cards display correctly
+  - [ ] Check account sections are present
+  - [ ] Verify filter form renders properly
+  - [ ] Test quick filter buttons appear
+
+- [ ] **Account navigation**
+  - [ ] Expand/collapse account sections
+  - [ ] Verify smooth animations
+  - [ ] Test navigation between accounts
+  - [ ] Check "View All" functionality
+
+### Financial Summary
+- [ ] **Summary cards**
+  - [ ] Verify net worth calculation is correct
+  - [ ] Check cash accounts total
+  - [ ] Verify credit card balance totals
+  - [ ] Test investment account totals
+  - [ ] Check loan balances
+
+- [ ] **Card dropdowns**
+  - [ ] Click each financial summary card
+  - [ ] Verify dropdown displays account details
+  - [ ] Check account balance accuracy
+  - [ ] Test account links in dropdowns
+
+### Transaction Filtering
+- [ ] **Date filters**
+  - [ ] Test date range picker
+  - [ ] Use predefined periods (This Month, Last Month, etc.)
+  - [ ] Verify correct transactions shown for date range
+
+- [ ] **Combined filters**
+  - [ ] Combine date, account, category, and type filters
+  - [ ] Verify filter badges appear correctly
+  - [ ] Test clearing individual filters
+  - [ ] Use "Clear All" to reset filters
+
+- [ ] **Quick filter buttons**
+  - [ ] Test "All Transactions" button
+  - [ ] Use "Uncategorized" quick filter
+  - [ ] Check "Recent" transactions filter
+  - [ ] Verify "Large Expenses" filter
+  - [ ] Test "Income Only" filter
+
+- [ ] **Search functionality**
+  - [ ] Search by transaction description
+  - [ ] Search by merchant name
+  - [ ] Search by amount
+  - [ ] Test partial search terms
+
+### Inline Transaction Management
+- [ ] **Adding transactions**
+  - [ ] Add transaction from account section
+  - [ ] Verify form validation
+  - [ ] Check transaction appears immediately
+  - [ ] Test transaction creation in multiple accounts
+
+- [ ] **Editing transactions**
+  - [ ] Edit transaction description
+  - [ ] Change transaction amount
+  - [ ] Update transaction date
+  - [ ] Verify changes are saved instantly
+
+- [ ] **Deleting transactions**
+  - [ ] Delete transaction from account section
+  - [ ] Verify confirmation dialog
+  - [ ] Check transaction removed from view
+  - [ ] Verify account balance updates
+
+### Categorization Features
+- [ ] **Inline categorization**
+  - [ ] Change category directly in transaction row
+  - [ ] Verify save button works
+  - [ ] Check changes persist on page reload
+
+- [ ] **Bulk categorization**
+  - [ ] Select multiple transactions
+  - [ ] Apply category to selection
+  - [ ] Verify all transactions updated
+  - [ ] Check selected count updates correctly
+
+- [ ] **AI suggestions**
+  - [ ] Select uncategorized transactions
+  - [ ] Click AI Suggest button
+  - [ ] Verify suggestions are highlighted
+  - [ ] Accept/reject individual suggestions
+  - [ ] Test "Apply All" button
+
+### Responsive Behavior
+- [ ] **Mobile view**
+  - [ ] Check filter panel collapse/expand
+  - [ ] Verify transaction table scrolling
+  - [ ] Test quick actions menu
+  - [ ] Check account expand/collapse on small screens
+
+- [ ] **Tablet view**
+  - [ ] Verify layout adjustments
+  - [ ] Test filter panel responsiveness
+  - [ ] Check transaction table fit
+
+- [ ] **Desktop view**
+  - [ ] Verify optimal layout
+  - [ ] Check all features accessible
+  - [ ] Test multi-column display
+
+### Cross-Browser Testing
+- [ ] **Chrome**
+  - [ ] Test all features function correctly
+  - [ ] Check visual rendering
+  - [ ] Verify animation smoothness
+
+- [ ] **Firefox**
+  - [ ] Test all interactive elements
+  - [ ] Check filter functionality
+  - [ ] Verify transaction operations
+
+- [ ] **Safari**
+  - [ ] Verify page layout
+  - [ ] Test dropdown menus
+  - [ ] Check form interactions
+
+- [ ] **Edge**
+  - [ ] Test overall functionality
+  - [ ] Verify responsiveness
+  - [ ] Check JavaScript features
+
+### Keyboard and Accessibility
+- [ ] **Keyboard navigation**
+  - [ ] Navigate full interface with keyboard
+  - [ ] Test keyboard shortcuts (N for new, F for filter)
+  - [ ] Check tab order through interface
+
+- [ ] **Screen reader compatibility**
+  - [ ] Verify aria-labels on all controls
+  - [ ] Test transaction table navigation
+  - [ ] Check form fields are properly labeled
+
 ### CSV Import
 - [ ] **File upload**
   - [ ] Upload CSV from each supported bank

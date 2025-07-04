@@ -8,6 +8,7 @@
 - [Test Categories](#test-categories)
 - [Manual Testing](#manual-testing)
 - [Enhanced AI Testing](#enhanced-ai-testing)
+- [Unified Finances Testing](#unified-finances-testing)
 - [Test Coverage](#test-coverage)
 - [Troubleshooting](#troubleshooting)
 - [Adding New Tests](#adding-new-tests)
@@ -22,6 +23,7 @@ The testing system provides comprehensive validation of BudgetBuddy's functional
 - **Password Management**: Strength validation, hashing, change functionality
 - **User Management**: Account creation, profile updates, permissions
 - **AI Categorization**: Enhanced transaction categorization with online research
+- **Unified Finances**: Comprehensive account and transaction management
 
 These tests help ensure the system remains secure, functional, and resistant to common security vulnerabilities.
 
@@ -32,8 +34,10 @@ tests/
 ├── README.md                               # Main documentation file
 ├── README_QUICK_START.md                   # Quick start guide
 ├── conftest.py                             # Test configuration and fixtures
+├── conftest_selenium.py                    # Selenium test configuration
 ├── run_tests.py                            # Main test runner script
 ├── run_enhanced_ai_tests.py                # Enhanced AI test runner
+├── run_finances_tests.py                   # Unified finances test runner
 ├── test_auth.py                            # Authentication tests
 ├── test_security.py                        # Security feature tests
 ├── test_api.py                             # API endpoint tests
@@ -41,6 +45,10 @@ tests/
 ├── test_enhanced_ai_categorizer.py         # AI categorizer unit tests
 ├── test_enhanced_ai_api_endpoints.py       # AI API endpoint tests
 ├── test_enhanced_ai_live_integration.py    # AI live integration tests
+├── test_finances_js.py                     # Finances JavaScript unit tests
+├── test_finances_integration.py            # Finances integration tests
+├── test_finances_e2e.py                    # Finances end-to-end tests
+├── test_finances_responsive_accessibility.py # Finances responsive & accessibility tests
 └── manual_tests.md                         # Manual testing checklist
 ```
 
@@ -68,6 +76,9 @@ python tests/run_tests.py --coverage
 
 # Generate HTML coverage report
 python tests/run_tests.py --coverage --html
+
+# Run unified finances tests
+python tests/run_finances_tests.py
 ```
 
 ### Execute All Tests with Pytest Directly
@@ -81,6 +92,7 @@ python -m pytest
 ```bash
 python -m pytest tests/test_auth.py
 python -m pytest tests/test_security.py
+python -m pytest tests/test_finances_js.py
 ```
 
 ### Run With Coverage Report
@@ -181,6 +193,36 @@ The enhanced AI categorization system requires special testing considerations:
    python tests/run_enhanced_ai_tests.py --coverage
    ```
 
+## Unified Finances Testing
+
+The unified finances feature has a comprehensive testing suite covering:
+
+- JavaScript unit tests
+- Integration tests for backend/API
+- End-to-end workflow tests
+- Responsive design tests
+- Accessibility tests
+- Cross-browser compatibility tests
+- Performance tests
+
+For detailed information, see [FINANCES_TEST_DOCUMENTATION.md](FINANCES_TEST_DOCUMENTATION.md).
+
+To run unified finances tests:
+
+```bash
+# Run all finances tests
+python tests/run_finances_tests.py
+
+# Run specific test categories
+python tests/run_finances_tests.py --unit           # JavaScript unit tests
+python tests/run_finances_tests.py --integration    # Integration tests
+python tests/run_finances_tests.py --e2e            # End-to-end tests
+python tests/run_finances_tests.py --responsive     # Responsive design tests
+python tests/run_finances_tests.py --accessibility  # Accessibility tests
+python tests/run_finances_tests.py --cross-browser  # Cross-browser tests
+python tests/run_finances_tests.py --performance    # Performance tests
+```
+
 ## Test Coverage
 
 Target coverage for security and authentication components is 95% or higher.
@@ -190,6 +232,7 @@ Current coverage metrics:
 - Security features: 94%
 - API endpoints: 85%
 - Enhanced AI categorization: 90%
+- Unified finances interface: 88%
 - Overall application: 89%
 
 To generate an HTML coverage report:
@@ -206,6 +249,7 @@ python tests/run_tests.py --coverage --html
 - **Time-sensitive tests**: TOTP tests may fail if system time is off
 - **Environment variables**: Some tests require specific env variables
 - **API limitations**: Enhanced AI tests may fail due to API rate limits
+- **Selenium issues**: WebDriver version may need to match browser version
 
 ### Debug Mode
 
@@ -226,6 +270,7 @@ python -m pytest --pdb tests/
 - TOTP validation tests may occasionally fail due to timing issues
 - Live API tests require valid API credentials
 - Some tests may be sensitive to database state
+- Selenium tests may be flaky due to timing or element visibility issues
 
 ## Adding New Tests
 

@@ -62,6 +62,7 @@
 - login.html: Authentication forms
 - register.html: Registration form
 - dashboard.html: Main user interface
+- finances.html: Unified financial management interface
 - setup_2fa.html: Two-factor authentication setup interface
 - 2fa_backup_codes.html: Displays backup codes after 2FA setup
 
@@ -75,17 +76,55 @@
 - Bootstrap core styles
 - Custom styles in static/css/custom.css
 
+## Unified Finances Feature
+
+### Overview
+The unified finances feature consolidates account management, transaction tracking, and categorization into a single comprehensive interface, replacing the previously separate accounts, transactions, and categorization pages.
+
+### Key Components
+- **Template**: `finances.html` implements the unified interface
+- **JavaScript**: `static/js/finances.js` contains all client-side functionality
+- **CSS**: Enhanced styles in `static/css/custom.css`
+- **Routes**: New API endpoints in `src/routs/routes.py`
+
+### Architecture
+- **Master-Detail View**: Expandable/collapsible account sections with inline transaction lists
+- **API-Driven**: AJAX-based interaction for real-time updates without page refresh
+- **Responsive Design**: Adapts to different screen sizes from mobile to desktop
+
+### API Endpoints
+- `/finances`: Main page serving the unified interface
+- `/api/account-transactions`: Returns filtered transaction data
+- `/api/add-transaction`: Handles adding/editing transactions
+- `/api/delete-transaction`: Removes transactions
+- `/api/categorize-transaction`: Updates transaction categories
+- `/api/bulk-categorize`: Processes bulk categorization
+
+### JavaScript Functions
+- **Filtering**: `filterTransactions()`, `applyQuickFilter()`
+- **Account Management**: `expandAccount()`, `collapseAccount()`
+- **Transaction Management**: `addTransaction()`, `editTransaction()`, `deleteTransaction()`
+- **Categorization**: `categorizeTransaction()`, `bulkCategorize()`, `aiSuggestCategories()`
+
+### Testing
+- Comprehensive test suite in `tests/test_finances_*.py` files
+- Custom test runner `tests/run_finances_tests.py`
+- See [FINANCES_TEST_DOCUMENTATION.md](../testing/FINANCES_TEST_DOCUMENTATION.md) for details
+
 ## Testing Framework
 
 ### Test Structure
 - `conftest.py`: Fixtures for test database, users, sessions
+- `conftest_selenium.py`: Fixtures for Selenium UI testing
 - `test_auth.py`: Authentication tests (registration, login, 2FA)
 - `test_security.py`: Security tests (sessions, access control)
 - `test_api.py`: API endpoint tests (data validation, error handling)
+- `test_finances_*.py`: Unified finances tests (JS, integration, e2e, responsive, accessibility)
 - `manual_tests.md`: Checklist for manual testing
 
 ### Running Tests
-- Use `run_tests.py` to execute test suite
+- Use `run_tests.py` to execute general test suite
+- Use `run_finances_tests.py` to execute unified finances tests
 - Options for specific test categories and coverage reports
 
 ### Test Database
@@ -161,4 +200,25 @@
   - Fix approaches:
     - Check browser console for errors
     - Verify all JS/CSS dependencies are loaded
-    - Inspect DOM elements for correct structure 
+    - Inspect DOM elements for correct structure
+
+### Unified Finances Issues
+- Issue: Transactions not loading in account sections
+  - Possible causes:
+    - AJAX request failing
+    - Invalid account ID
+    - Server-side filtering error
+  - Fix approaches:
+    - Check browser console for AJAX errors
+    - Verify account IDs in database
+    - Review server logs for filtering exceptions
+
+- Issue: Categorization not saving
+  - Possible causes:
+    - CSRF token missing or invalid
+    - Category ID not valid
+    - Transaction ID not valid
+  - Fix approaches:
+    - Ensure CSRF protection is properly implemented
+    - Verify category exists in database
+    - Check transaction ownership permissions 

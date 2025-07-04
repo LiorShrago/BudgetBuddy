@@ -1,0 +1,11 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.10, pytest-8.4.1, pluggy-1.6.0 -- /home/runner/workspace/.pythonlibs/bin/python
+cachedir: .pytest_cache
+rootdir: /home/runner/workspace
+configfile: pyproject.toml
+plugins: Flask-Dance-7.1.0, anyio-4.9.0
+collecting ... collected 0 items
+
+============================ no tests ran in 0.19s =============================
+ERROR: file or directory not found: test_finances_js.py
+

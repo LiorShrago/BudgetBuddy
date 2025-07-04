@@ -5,11 +5,14 @@ Welcome to the BudgetBuddy documentation! This directory contains comprehensive 
 ## Documentation Structure
 
 - **[CHANGELOG.md](CHANGELOG.md)**: Complete project changelog
+- **[UNIFIED_FINANCES_USER_GUIDE.md](UNIFIED_FINANCES_USER_GUIDE.md)**: User guide for the unified finances interface
 - **[Development](development/)**: Developer documentation
   - **[DEVELOPMENT_NOTES.md](development/DEVELOPMENT_NOTES.md)**: Technical notes for developers
   - **[DEBUG_CHECKLIST.md](development/DEBUG_CHECKLIST.md)**: Debugging procedures and checklists
+  - **[UNIFIED_FINANCES.md](development/UNIFIED_FINANCES.md)**: Documentation for the unified finances interface
 - **[Testing](testing/)**: Testing documentation
   - **[TEST_DOCUMENTATION.md](testing/TEST_DOCUMENTATION.md)**: Comprehensive testing guide
+  - **[FINANCES_TEST_DOCUMENTATION.md](testing/FINANCES_TEST_DOCUMENTATION.md)**: Unified finances testing guide
 
 ## Features
 
@@ -21,6 +24,7 @@ BudgetBuddy is a personal finance management application with the following key 
 4. **Budgeting**: Set and track spending goals
 5. **Enhanced AI Categorization**: Online research for accurate transaction categorization
 6. **Secure Authentication**: Two-factor authentication and secure session management
+7. **Unified Financial Overview**: Comprehensive financial management in a single interface
 
 ## Getting Started
 
@@ -49,6 +53,11 @@ BudgetBuddy/
 ├── templates/            # Jinja2 templates
 ├── static/               # Static assets (CSS, JS, images)
 ├── tests/                # Test suite
+│   ├── conftest.py       # Test configuration and fixtures
+│   ├── conftest_selenium.py # Selenium test configuration
+│   ├── run_tests.py      # Main test runner script
+│   ├── run_finances_tests.py # Unified finances test runner
+│   └── test_*.py         # Test files
 └── docs/                 # Documentation (you are here)
 ```
 

@@ -1,6 +1,6 @@
 import os
 import secrets
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from decimal import Decimal
 from flask import render_template, request, redirect, url_for, flash, jsonify, session
 from flask_login import login_user, logout_user, login_required, current_user
@@ -1220,3 +1220,213 @@ def create_default_categories(user_id):
         db.session.add(category)
     
     db.session.commit()
+
+
+@app.route('/finances')
+@login_required
+def finances():
+    """Unified page that combines accounts and transactions functionality"""
+    # Get all accounts for the current user
+    accounts = Account.query.filter_by(user_id=current_user.id).all()
+    
+    # Get all categories for the current user
+    categories = Category.query.filter_by(user_id=current_user.id).all()
+    
+    # Calculate financial metrics
+    net_worth = calculate_net_worth(current_user.id)
+    credit_cards_total = calculate_credit_cards_total(current_user.id)
+    cash_total = calculate_cash_total(current_user.id)
+    loans_total = calculate_loans_total(current_user.id)
+    investments_total = calculate_investments_total(current_user.id)
+    savings_total = calculate_savings_total(current_user.id)
+    
+    return render_template('finances.html', 
+                         accounts=accounts,
+                         categories=categories,
+                         net_worth=net_worth,
+                         credit_cards_total=credit_cards_total,
+                         cash_total=cash_total,
+                         loans_total=loans_total,
+                         investments_total=investments_total,
+                         savings_total=savings_total)
+
+
+@app.route('/api/account-transactions')
+@login_required
+def account_transactions():
+    """API endpoint to fetch transactions for a specific account with filtering"""
+    account_id = request.args.get('account', type=int)
+    if not account_id:
+        return jsonify({'error': 'Account ID is required'}), 400
+    
+    # Verify the account belongs to the current user
+    account = Account.query.filter_by(id=account_id, user_id=current_user.id).first()
+    if not account:
+        return jsonify({'error': 'Account not found'}), 404
+    
+    # Build the query with filters
+    query = Transaction.query.filter_by(account_id=account_id)
+    
+    # Apply filters if provided
+    category_id = request.args.get('category', type=int)
+    if category_id:
+        if category_id == -1:  # Special case for uncategorized
+            query = query.filter(Transaction.category_id.is_(None))
+        else:
+            query = query.filter(Transaction.category_id == category_id)
+    
+    transaction_type = request.args.get('type')
+    if transaction_type and transaction_type != 'all':
+        query = query.filter(Transaction.transaction_type == transaction_type)
+    
+    date_from = request.args.get('date_from')
+    if date_from:
+        try:
+            date_from = datetime.strptime(date_from, '%Y-%m-%d').date()
+            query = query.filter(Transaction.date >= date_from)
+        except ValueError:
+            pass
+    
+    date_to = request.args.get('date_to')
+    if date_to:
+        try:
+            date_to = datetime.strptime(date_to, '%Y-%m-%d').date()
+            query = query.filter(Transaction.date <= date_to)
+        except ValueError:
+            pass
+    
+    amount_min = request.args.get('amount_min', type=float)
+    if amount_min is not None:
+        query = query.filter(Transaction.amount >= amount_min)
+    
+    amount_max = request.args.get('amount_max', type=float)
+    if amount_max is not None:
+        query = query.filter(Transaction.amount <= amount_max)
+    
+    description = request.args.get('description')
+    if description:
+        query = query.filter(Transaction.description.ilike(f'%{description}%'))
+    
+    # Order by date (newest first)
+    query = query.order_by(Transaction.date.desc())
+    
+    # Execute query and get results
+    transactions = query.all()
+    
+    # Convert to JSON
+    result = []
+    for transaction in transactions:
+        category_data = None
+        if transaction.category:
+            category_data = {
+                'id': transaction.category.id,
+                'name': transaction.category.name,
+                'color': transaction.category.color
+            }
+        
+        result.append({
+            'id': transaction.id,
+            'date': transaction.date.isoformat(),
+            'description': transaction.description,
+            'amount': float(transaction.amount),
+            'transaction_type': transaction.transaction_type,
+            'category_id': transaction.category_id,
+            'category': category_data,
+            'merchant': transaction.merchant
+        })
+    
+    return jsonify({
+        'success': True,
+        'transactions': result,
+        'count': len(result)
+    })
+
+
+@app.route('/api/add-transaction', methods=['POST'])
+@login_required
+def add_transaction():
+    """API endpoint to add a new transaction or update an existing one"""
+    data = request.json
+    
+    # Check if this is an edit (update) operation
+    transaction_id = data.get('transaction_id')
+    if transaction_id:
+        # Update existing transaction
+        transaction = Transaction.query.filter_by(id=transaction_id, account_id=data.get('account_id')).first()
+        if not transaction:
+            return jsonify({'success': False, 'message': 'Transaction not found'}), 404
+    else:
+        # Create new transaction
+        transaction = Transaction()
+    
+    # Verify the account belongs to the current user
+    account = Account.query.filter_by(id=data.get('account_id'), user_id=current_user.id).first()
+    if not account:
+        return jsonify({'success': False, 'message': 'Account not found'}), 404
+    
+    # Update transaction fields
+    try:
+        transaction.account_id = data.get('account_id')
+        transaction.date = datetime.strptime(data.get('date'), '%Y-%m-%d').date()
+        transaction.description = data.get('description')
+        transaction.amount = data.get('amount')
+        transaction.transaction_type = data.get('transaction_type', 'expense')
+        
+        # Optional fields
+        category_id = data.get('category_id')
+        if category_id and category_id != '':
+            # Verify the category belongs to the current user
+            category = Category.query.filter_by(id=category_id, user_id=current_user.id).first()
+            if not category:
+                return jsonify({'success': False, 'message': 'Category not found'}), 404
+            transaction.category_id = category_id
+        else:
+            transaction.category_id = None
+            
+        transaction.merchant = data.get('merchant')
+        transaction.notes = data.get('notes')
+        
+        if not transaction_id:  # Only set created_at for new transactions
+            transaction.created_at = datetime.utcnow()
+        
+        # Add to database if new
+        if not transaction_id:
+            db.session.add(transaction)
+            
+        # Commit changes
+        db.session.commit()
+        
+        return jsonify({'success': True, 'transaction_id': transaction.id})
+    
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error saving transaction: {str(e)}'}), 500
+
+
+@app.route('/api/delete-transaction', methods=['POST'])
+@login_required
+def delete_transaction():
+    """API endpoint to delete a transaction"""
+    data = request.json
+    transaction_id = data.get('transaction_id')
+    
+    if not transaction_id:
+        return jsonify({'success': False, 'message': 'Transaction ID is required'}), 400
+    
+    transaction = Transaction.query.filter_by(id=transaction_id).first()
+    
+    if not transaction:
+        return jsonify({'success': False, 'message': 'Transaction not found'}), 404
+    
+    # Verify the account belongs to the current user
+    account = Account.query.filter_by(id=transaction.account_id, user_id=current_user.id).first()
+    if not account:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    try:
+        db.session.delete(transaction)
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error deleting transaction: {str(e)}'}), 500
