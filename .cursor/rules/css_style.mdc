@@ -1,0 +1,65 @@
+---
+globs: [static/css/*.css]
+alwaysApply: true
+---
+
+---
+Description: CSS Best Practices
+Globs: static/css/*.css
+---
+
+# Organization
+
+- Use consistent naming conventions (BEM methodology preferred)
+- Organize CSS by component or feature
+- Group related styles together
+- Use comments to separate major sections
+- Keep selector specificity as low as possible
+
+# Responsive Design
+
+- Use mobile-first approach
+- Implement responsive breakpoints consistently
+- Use relative units (rem, em, %) over absolute units (px)
+- Test on multiple screen sizes
+- Ensure touch targets are at least 44px × 44px for mobile
+
+# Performance
+
+- Minimize use of expensive properties (box-shadow, border-radius, etc.)
+- Avoid deeply nested selectors
+- Prefer classes over element selectors
+- Use CSS Grid and Flexbox for layouts
+- Avoid !important (use more specific selectors instead)
+
+# Maintainability
+
+- Use CSS variables for theming and repeated values
+- Keep specificity low to avoid conflicts
+- Use shorthand properties when appropriate
+- Avoid inline styles in HTML
+- Document complex or non-obvious styles
+
+# Accessibility
+
+- Ensure sufficient color contrast (WCAG AA minimum)
+- Don't rely solely on color to convey information
+- Support reduced motion preferences
+- Test with keyboard navigation
+- Support text zoom up to 200%
+
+# Integration with Flask/Jinja
+
+- Use static asset versioning for cache busting
+- Consider using Sass/SCSS for more complex projects
+- Keep component-specific styles in their respective template files
+- Use Flask's url_for() for image paths
+- Prefer Bootstrap utility classes when available
+
+# Browser Compatibility
+
+- Test across multiple browsers
+- Use vendor prefixes when necessary
+- Consider using Autoprefixer
+- Implement graceful degradation for older browsers
+- Avoid browser-specific hacks

@@ -1,0 +1,65 @@
+---
+globs: [templates/**/*.html]
+alwaysApply: true
+---
+
+---
+Description: Jinja Template Best Practices
+Globs: templates/**/*.html
+---
+
+# Template Structure
+
+- Use template inheritance with {% extends "base.html" %}
+- Define clear block structure in base templates
+- Keep templates DRY by using macros for repeated elements
+- Organize templates by feature or blueprint
+- Use consistent naming conventions for templates and blocks
+
+# Syntax Best Practices
+
+- Use whitespace control with {%- and -%} to avoid extra spaces
+- Prefer {% set variable = value %} over complex inline expressions
+- Keep logic in Python, use templates only for presentation
+- Use {% with %} for complex expressions used multiple times
+- Indent Jinja control structures consistently
+
+# Security
+
+- Always escape variables by default {{ variable }}
+- Only use |safe filter when absolutely necessary and content is trusted
+- Never use {% autoescape false %} without careful consideration
+- Use CSRF protection with form.csrf_token in all forms
+- Sanitize user-generated content before displaying
+
+# Performance
+
+- Minimize logic in templates
+- Use template fragment caching for expensive parts
+- Avoid unnecessary loops and conditionals
+- Keep macros efficient and focused
+- Use {% include %} with caution as it can impact performance
+
+# Accessibility
+
+- Include proper ARIA attributes in generated HTML
+- Ensure form fields have associated labels
+- Use semantic HTML elements
+- Maintain proper heading hierarchy
+- Provide alternative text for images
+
+# Integration with CSS/JS
+
+- Use {% block styles %} and {% block scripts %} for page-specific assets
+- Load CSS in the head, JS before closing body tag
+- Use Flask's url_for('static', filename='...') for asset paths
+- Consider using asset bundling for production
+- Keep inline styles and scripts to a minimum
+
+# Error Handling
+
+- Implement proper error templates (404.html, 500.html, etc.)
+- Use {% if variable is defined %} to check for variable existence
+- Provide fallback content with {% else %} clauses
+- Use default filters for missing values {{ variable|default('N/A') }}
+- Log template rendering errors properly

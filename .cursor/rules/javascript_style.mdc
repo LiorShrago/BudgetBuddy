@@ -1,0 +1,60 @@
+---
+globs: [static/js/*.js]
+alwaysApply: true
+description: JavaScript Best Practices
+
+# Code Organization
+
+- Organize code by feature or component
+- Keep files focused on a single responsibility
+- Use consistent naming conventions (camelCase for variables/functions, PascalCase for classes)
+- Group related functions together
+- Place initialization code at the bottom of files
+
+# DOM Interaction
+
+- Cache DOM selections to avoid repeated queries
+- Use event delegation for dynamically added elements
+- Prefer dataset attributes over custom attributes
+- Use data-* attributes for JavaScript hooks instead of CSS classes
+- Avoid inline event handlers in HTML
+
+# Performance
+
+- Minimize DOM manipulations and reflows
+- Debounce or throttle event handlers for scroll/resize events
+- Use requestAnimationFrame for animations
+- Defer non-critical JavaScript loading
+- Avoid blocking the main thread with heavy computations
+
+# Asynchronous Code
+
+- Prefer async/await over Promise chains
+- Handle errors properly in async functions
+- Use try/catch blocks for error handling
+- Avoid deeply nested callbacks
+- Consider using Promise.all for parallel operations
+
+# Security
+
+- Sanitize user input before using it in DOM or API calls
+- Avoid using eval() or new Function()
+- Validate data from API responses
+- Use CSRF tokens for AJAX requests
+- Escape HTML content when inserting into the DOM
+
+# Compatibility
+
+- Test across multiple browsers
+- Use feature detection instead of browser detection
+- Consider polyfills for newer JavaScript features
+- Follow ES6+ standards but ensure browser compatibility
+- Prefer vanilla JS over jQuery when possible
+
+# Integration with Flask
+
+- Use Flask's url_for() in templates to generate URLs for AJAX calls
+- Access Flask template variables via data attributes or a global config object
+- Handle CSRF token validation for AJAX POST requests
+- Use proper error handling for Flask API responses
+- Follow consistent JSON structure for API requests/responses
