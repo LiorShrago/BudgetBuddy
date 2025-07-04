@@ -12,7 +12,7 @@
 
 # BudgetBuddy Project Changelog
 
-## 2023-08-03
+## 2023-07-03
 
 ### Added
 
