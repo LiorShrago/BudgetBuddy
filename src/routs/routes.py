@@ -1431,3 +1431,186 @@ def delete_transaction():
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Error deleting transaction: {str(e)}'}), 500
+
+
+# Enhanced Categorization API Endpoints
+
+@app.route('/api/category-overview')
+@login_required
+def category_overview():
+    """Get category overview with transaction counts and amounts"""
+    try:
+        # Get all categories for the user
+        categories = Category.query.filter_by(user_id=current_user.id).all()
+        
+        # Get total transaction count for the user
+        total_transactions = db.session.query(func.count(Transaction.id)).join(Account).filter(
+            Account.user_id == current_user.id
+        ).scalar()
+        
+        category_data = []
+        for category in categories:
+            # Get transaction count and total amount for this category
+            stats = db.session.query(
+                func.count(Transaction.id).label('count'),
+                func.coalesce(func.sum(Transaction.amount), 0).label('total')
+            ).join(Account).filter(
+                Account.user_id == current_user.id,
+                Transaction.category_id == category.id
+            ).first()
+            
+            category_data.append({
+                'id': category.id,
+                'name': category.name,
+                'color': category.color,
+                'transaction_count': stats.count or 0,
+                'total_amount': float(stats.total or 0),
+                'total_transactions': total_transactions
+            })
+        
+        return jsonify({
+            'success': True,
+            'categories': category_data
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error fetching category overview: {str(e)}'}), 500
+
+
+@app.route('/api/uncategorized-summary')
+@login_required
+def uncategorized_summary():
+    """Get summary of uncategorized transactions"""
+    try:
+        # Get count and total amount of uncategorized transactions
+        stats = db.session.query(
+            func.count(Transaction.id).label('count'),
+            func.coalesce(func.sum(func.abs(Transaction.amount)), 0).label('total')
+        ).join(Account).filter(
+            Account.user_id == current_user.id,
+            Transaction.category_id.is_(None)
+        ).first()
+        
+        return jsonify({
+            'success': True,
+            'count': stats.count or 0,
+            'total_amount': float(stats.total or 0)
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error fetching uncategorized summary: {str(e)}'}), 500
+
+
+@app.route('/api/categories')
+@login_required
+def categories_api():
+    """Get all categories for the user"""
+    try:
+        categories = Category.query.filter_by(user_id=current_user.id).all()
+        
+        category_data = []
+        for category in categories:
+            category_data.append({
+                'id': category.id,
+                'name': category.name,
+                'color': category.color,
+                'parent_id': category.parent_id
+            })
+        
+        return jsonify({
+            'success': True,
+            'categories': category_data
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error fetching categories: {str(e)}'}), 500
+
+
+@app.route('/api/uncategorized-transactions')
+@login_required
+def uncategorized_transactions():
+    """Get all uncategorized transactions for the user"""
+    try:
+        transactions = Transaction.query.filter_by(category_id=None).join(Account).filter(
+            Account.user_id == current_user.id
+        ).order_by(Transaction.date.desc()).all()
+        
+        transaction_data = []
+        for transaction in transactions:
+            transaction_data.append({
+                'id': transaction.id,
+                'date': transaction.date.isoformat(),
+                'description': transaction.description,
+                'merchant': transaction.merchant,
+                'amount': float(transaction.amount),
+                'transaction_type': transaction.transaction_type,
+                'account_id': transaction.account_id
+            })
+        
+        return jsonify({
+            'success': True,
+            'transactions': transaction_data
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error fetching uncategorized transactions: {str(e)}'}), 500
+
+
+@app.route('/api/categorize-transaction', methods=['POST'])
+@login_required
+def categorize_transaction():
+    """Categorize a single transaction"""
+    try:
+        data = request.get_json()
+        transaction_id = data.get('transaction_id')
+        category_id = data.get('category_id')
+        
+        if not transaction_id:
+            return jsonify({'success': False, 'message': 'Transaction ID is required'}), 400
+        
+        # Verify transaction belongs to user
+        transaction = Transaction.query.join(Account).filter(
+            Account.user_id == current_user.id,
+            Transaction.id == transaction_id
+        ).first()
+        
+        if not transaction:
+            return jsonify({'success': False, 'message': 'Transaction not found'}), 404
+        
+        # Verify category belongs to user (if category_id is provided)
+        if category_id:
+            category = Category.query.filter_by(id=category_id, user_id=current_user.id).first()
+            if not category:
+                return jsonify({'success': False, 'message': 'Category not found'}), 404
+        
+        # Update transaction category
+        transaction.category_id = category_id if category_id else None
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Transaction categorized successfully'
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error categorizing transaction: {str(e)}'}), 500
+
+
+@app.route('/api/ai-auto-categorize', methods=['POST'])
+@login_required
+def ai_auto_categorize():
+    """Auto-categorize all uncategorized transactions using AI"""
+    try:
+        # Use existing AI categorization service
+        result = auto_categorize_uncategorized_transactions(current_user.id)
+        
+        if result.get('success', False):
+            categorized_count = result.get('categorized_count', 0)
+            return jsonify({
+                'success': True,
+                'categorized_count': categorized_count,
+                'message': f'Successfully categorized {categorized_count} transactions'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': result.get('message', 'Failed to auto-categorize transactions')
+            })
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error in auto-categorization: {str(e)}'}), 500

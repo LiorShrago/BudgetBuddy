@@ -185,6 +185,47 @@
     </div>
 </div>
 
+<!-- Categories Overview -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">
+            <i data-feather="tag"></i>
+            Categories & Transactions
+        </h5>
+        <div>
+            <button class="btn btn-sm btn-success" id="quick-categorize-mode">
+                <i data-feather="zap"></i>
+                Quick Categorize
+            </button>
+            <button class="btn btn-sm btn-outline-primary" id="ai-auto-categorize">
+                <i data-feather="star"></i>
+                AI Suggest All
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <!-- Category Overview Grid -->
+        <div class="row g-3 mb-4" id="category-overview">
+            <!-- Categories will be loaded here -->
+        </div>
+        
+        <!-- Uncategorized Transactions Summary -->
+        <div class="alert alert-warning" id="uncategorized-summary" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <i data-feather="alert-triangle" class="me-2"></i>
+                    <strong id="uncategorized-count">0</strong> uncategorized transactions found
+                    <small class="text-muted ms-2">• Total amount: <span id="uncategorized-amount">$0.00</span></small>
+                </div>
+                <button class="btn btn-sm btn-outline-warning" id="categorize-all-uncategorized">
+                    <i data-feather="tag"></i>
+                    Categorize All
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Accounts Section -->
 <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
@@ -505,20 +546,29 @@
     </div>
 </div>
 
-<!-- Bulk Categorization Modal -->
+<!-- Enhanced Bulk Categorization Modal -->
 <div class="modal fade" id="bulkCategorizeModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
                     <i data-feather="tag"></i>
-                    Categorize Transactions
+                    Categorize <span id="bulk-selected-count">0</span> Transactions
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <!-- Quick Category Grid -->
+                <div class="mb-4">
+                    <h6>Quick Assign</h6>
+                    <div class="row g-2" id="quick-category-grid">
+                        <!-- Quick categories will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Traditional Dropdown -->
                 <div class="mb-3">
-                    <label for="bulk_category" class="form-label">Assign to Category</label>
+                    <label for="bulk_category" class="form-label">Or choose from all categories:</label>
                     <select class="form-select" id="bulk_category">
                         <option value="">Select category...</option>
                         {% for category in categories %}
@@ -527,16 +577,59 @@
                     </select>
                 </div>
                 
-                <div class="alert alert-info">
-                    <span id="selected-transactions-count">0</span> transactions selected
+                <!-- Selected Transactions Preview -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Selected Transactions</h6>
+                    </div>
+                    <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+                        <div id="selected-transactions-preview">
+                            <!-- Selected transactions will be shown here -->
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" id="confirm-bulk-categorize">
+                <button type="button" class="btn btn-success" id="confirm-bulk-categorize" disabled>
                     <i data-feather="check"></i>
-                    Confirm Categorization
+                    Categorize Transactions
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Categorize Panel (Sliding Panel) -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="quickCategorizePanel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">
+            <i data-feather="zap"></i>
+            Quick Categorize
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="mb-3">
+            <h6>Uncategorized Transactions</h6>
+            <div class="alert alert-info">
+                <small>Click on a transaction, then select a category to assign it quickly.</small>
+            </div>
+        </div>
+        
+        <!-- Quick Categories Grid -->
+        <div class="mb-4">
+            <h6>Categories</h6>
+            <div class="d-grid gap-2" id="quick-categorize-categories">
+                <!-- Categories will be loaded here -->
+            </div>
+        </div>
+        
+        <!-- Uncategorized Transactions List -->
+        <div class="mb-4">
+            <h6>Uncategorized Transactions</h6>
+            <div id="quick-categorize-transactions" style="max-height: 400px; overflow-y: auto;">
+                <!-- Uncategorized transactions will be loaded here -->
             </div>
         </div>
     </div>

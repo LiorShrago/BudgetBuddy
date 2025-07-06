@@ -29,6 +29,12 @@ function initializePage() {
     
     // Initialize account edit/delete buttons
     initializeAccountButtons();
+    
+    // Load category overview
+    loadCategoryOverview();
+    
+    // Load uncategorized transactions summary
+    loadUncategorizedSummary();
 }
 
 function setupEventListeners() {
@@ -64,6 +70,11 @@ function setupEventListeners() {
     // AI suggestions buttons
     document.getElementById('accept-all-suggestions').addEventListener('click', acceptAllSuggestions);
     document.getElementById('apply-suggestions').addEventListener('click', applySelectedSuggestions);
+    
+    // New categorization features
+    document.getElementById('quick-categorize-mode').addEventListener('click', openQuickCategorizePanel);
+    document.getElementById('ai-auto-categorize').addEventListener('click', autoCategorizeTranactions);
+    document.getElementById('categorize-all-uncategorized').addEventListener('click', categorizeAllUncategorized);
     
     // Enable delete account button only when "DELETE" is typed
     document.getElementById('confirm_delete').addEventListener('input', function(e) {
@@ -872,22 +883,49 @@ function deleteTransaction(transactionId) {
     }
 }
 
-function showBulkCategorizeModal(transactionIds) {
-    document.getElementById('selected-transactions-count').textContent = transactionIds.length;
+function showBulkCategorizeModal(transactionIds = null) {
+    const selectedIds = transactionIds || Array.from(selectedTransactions);
+    const count = selectedIds.length;
     
-    // Store selected transactions in a data attribute
-    document.getElementById('confirm-bulk-categorize').dataset.transactionIds = JSON.stringify(transactionIds);
+    if (count === 0) {
+        showAlert('Please select transactions to categorize', 'warning');
+        return;
+    }
+    
+    // Update count in modal title
+    document.getElementById('bulk-selected-count').textContent = count;
+    
+    // Update global selectedTransactions if transactionIds were passed
+    if (transactionIds) {
+        selectedTransactions.clear();
+        transactionIds.forEach(id => selectedTransactions.add(id.toString()));
+    }
+    
+    // Load quick categories for the modal
+    loadQuickCategoriesForBulkModal();
+    
+    // Load and display selected transactions preview
+    loadSelectedTransactionsPreview();
+    
+    // Reset category selection
+    document.getElementById('bulk_category').value = '';
+    document.getElementById('confirm-bulk-categorize').disabled = true;
     
     // Show modal
     new bootstrap.Modal(document.getElementById('bulkCategorizeModal')).show();
 }
 
 function handleBulkCategorize() {
-    const transactionIds = JSON.parse(document.getElementById('confirm-bulk-categorize').dataset.transactionIds);
+    const transactionIds = Array.from(selectedTransactions);
     const categoryId = document.getElementById('bulk_category').value;
     
     if (!categoryId) {
         showAlert('Please select a category', 'warning');
+        return;
+    }
+    
+    if (transactionIds.length === 0) {
+        showAlert('No transactions selected', 'warning');
         return;
     }
     
@@ -1190,4 +1228,441 @@ function showAlert(message, type) {
             alertDiv.remove();
         }
     }, 4000);
+}
+
+// Enhanced Categorization Functions
+
+function loadCategoryOverview() {
+    fetch('/api/category-overview')
+        .then(response => response.json())
+        .then(data => {
+            renderCategoryOverview(data.categories || []);
+        })
+        .catch(error => {
+            console.error('Error loading category overview:', error);
+        });
+}
+
+function renderCategoryOverview(categories) {
+    const container = document.getElementById('category-overview');
+    
+    let html = '';
+    categories.forEach(category => {
+        const percentage = category.total_transactions > 0 ? 
+            ((category.transaction_count / category.total_transactions) * 100).toFixed(1) : 0;
+        
+        html += `
+            <div class="col-md-3 col-sm-6">
+                <div class="card category-card h-100" data-category-id="${category.id}">
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center mb-2">
+                            <div class="category-color-dot me-2" style="background-color: ${category.color}; width: 12px; height: 12px; border-radius: 50%;"></div>
+                            <h6 class="card-title mb-0 text-truncate">${category.name}</h6>
+                        </div>
+                        <div class="mb-2">
+                            <h4 class="text-primary mb-0">${category.transaction_count}</h4>
+                            <small class="text-muted">transactions</small>
+                        </div>
+                        <div class="mb-2">
+                            <strong class="${category.total_amount >= 0 ? 'text-success' : 'text-danger'}">
+                                ${category.total_amount >= 0 ? '+' : ''}$${Math.abs(category.total_amount).toFixed(2)}
+                            </strong>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar" style="width: ${percentage}%; background-color: ${category.color};"></div>
+                        </div>
+                        <small class="text-muted">${percentage}% of transactions</small>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+    
+    // Add click listeners to category cards
+    document.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const categoryId = this.dataset.categoryId;
+            filterByCategory(categoryId);
+        });
+    });
+}
+
+function loadUncategorizedSummary() {
+    fetch('/api/uncategorized-summary')
+        .then(response => response.json())
+        .then(data => {
+            const uncategorizedCount = data.count || 0;
+            const uncategorizedAmount = data.total_amount || 0;
+            
+            document.getElementById('uncategorized-count').textContent = uncategorizedCount;
+            document.getElementById('uncategorized-amount').textContent = `$${Math.abs(uncategorizedAmount).toFixed(2)}`;
+            
+            if (uncategorizedCount > 0) {
+                document.getElementById('uncategorized-summary').style.display = 'block';
+            } else {
+                document.getElementById('uncategorized-summary').style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading uncategorized summary:', error);
+        });
+}
+
+function openQuickCategorizePanel() {
+    // Load uncategorized transactions for quick categorization
+    loadQuickCategorizeData();
+    
+    // Show the offcanvas panel
+    const offcanvas = new bootstrap.Offcanvas(document.getElementById('quickCategorizePanel'));
+    offcanvas.show();
+}
+
+function loadQuickCategorizeData() {
+    // Load categories for quick categorization
+    fetch('/api/categories')
+        .then(response => response.json())
+        .then(data => {
+            renderQuickCategorizeCategories(data.categories || []);
+        })
+        .catch(error => {
+            console.error('Error loading categories:', error);
+        });
+    
+    // Load uncategorized transactions
+    fetch('/api/uncategorized-transactions')
+        .then(response => response.json())
+        .then(data => {
+            renderQuickCategorizeTransactions(data.transactions || []);
+        })
+        .catch(error => {
+            console.error('Error loading uncategorized transactions:', error);
+        });
+}
+
+function renderQuickCategorizeCategories(categories) {
+    const container = document.getElementById('quick-categorize-categories');
+    
+    let html = '';
+    categories.forEach(category => {
+        html += `
+            <button class="btn btn-outline-primary btn-sm quick-cat-btn" data-category-id="${category.id}">
+                <div class="d-flex align-items-center">
+                    <div class="category-color-dot me-2" style="background-color: ${category.color}; width: 8px; height: 8px; border-radius: 50%;"></div>
+                    ${category.name}
+                </div>
+            </button>
+        `;
+    });
+    
+    container.innerHTML = html;
+    
+    // Add click listeners
+    document.querySelectorAll('.quick-cat-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectQuickCategory(this.dataset.categoryId, this.textContent.trim());
+        });
+    });
+}
+
+function renderQuickCategorizeTransactions(transactions) {
+    const container = document.getElementById('quick-categorize-transactions');
+    
+    if (transactions.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-3">
+                <i data-feather="check-circle" class="text-success mb-2"></i>
+                <p class="text-muted">All transactions are categorized!</p>
+            </div>
+        `;
+        feather.replace();
+        return;
+    }
+    
+    let html = '';
+    transactions.forEach(transaction => {
+        const amountClass = transaction.transaction_type === 'expense' ? 'text-danger' : 'text-success';
+        const amountPrefix = transaction.transaction_type === 'expense' ? '-' : '+';
+        
+        html += `
+            <div class="card mb-2 quick-transaction" data-transaction-id="${transaction.id}">
+                <div class="card-body p-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1 text-truncate">${transaction.description}</h6>
+                            <small class="text-muted">${new Date(transaction.date).toLocaleDateString()}</small>
+                        </div>
+                        <div class="text-end">
+                            <strong class="${amountClass}">${amountPrefix}$${Math.abs(transaction.amount).toFixed(2)}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+    
+    // Add click listeners to transactions
+    document.querySelectorAll('.quick-transaction').forEach(card => {
+        card.addEventListener('click', function() {
+            selectQuickTransaction(this);
+        });
+    });
+}
+
+let selectedQuickTransaction = null;
+let selectedQuickCategory = null;
+
+function selectQuickTransaction(transactionElement) {
+    // Remove previous selection
+    document.querySelectorAll('.quick-transaction').forEach(el => {
+        el.classList.remove('border-primary');
+    });
+    
+    // Select new transaction
+    transactionElement.classList.add('border-primary');
+    selectedQuickTransaction = transactionElement.dataset.transactionId;
+    
+    // If category is selected, enable quick categorization
+    if (selectedQuickCategory) {
+        performQuickCategorization();
+    }
+}
+
+function selectQuickCategory(categoryId, categoryName) {
+    // Remove previous selection
+    document.querySelectorAll('.quick-cat-btn').forEach(btn => {
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline-primary');
+    });
+    
+    // Select new category
+    event.target.closest('.quick-cat-btn').classList.remove('btn-outline-primary');
+    event.target.closest('.quick-cat-btn').classList.add('btn-primary');
+    selectedQuickCategory = categoryId;
+    
+    // If transaction is selected, enable quick categorization
+    if (selectedQuickTransaction) {
+        performQuickCategorization();
+    }
+}
+
+function performQuickCategorization() {
+    if (!selectedQuickTransaction || !selectedQuickCategory) return;
+    
+    fetch('/api/categorize-transaction', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            transaction_id: selectedQuickTransaction,
+            category_id: selectedQuickCategory
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove the categorized transaction from the list
+            const transactionElement = document.querySelector(`[data-transaction-id="${selectedQuickTransaction}"]`);
+            if (transactionElement) {
+                transactionElement.remove();
+            }
+            
+            // Reset selections
+            selectedQuickTransaction = null;
+            selectedQuickCategory = null;
+            
+            // Remove category selection
+            document.querySelectorAll('.quick-cat-btn').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline-primary');
+            });
+            
+            // Refresh data
+            loadUncategorizedSummary();
+            loadCategoryOverview();
+            
+            showAlert('Transaction categorized successfully!', 'success');
+        } else {
+            showAlert(data.message || 'Failed to categorize transaction', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Network error occurred', 'error');
+    });
+}
+
+function autoCategorizeTranactions() {
+    // Show confirmation
+    if (!confirm('This will use AI to automatically categorize all uncategorized transactions. Continue?')) {
+        return;
+    }
+    
+    const button = document.getElementById('ai-auto-categorize');
+    const originalText = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> AI Processing...';
+    
+    fetch('/api/ai-auto-categorize', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(`Successfully categorized ${data.categorized_count} transactions!`, 'success');
+            
+            // Refresh data
+            loadUncategorizedSummary();
+            loadCategoryOverview();
+            loadAccountTransactions();
+        } else {
+            showAlert(data.message || 'Failed to auto-categorize transactions', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('Network error occurred', 'error');
+    })
+    .finally(() => {
+        button.disabled = false;
+        button.innerHTML = originalText;
+    });
+}
+
+function categorizeAllUncategorized() {
+    // Fetch all uncategorized transactions and open bulk categorize modal
+    fetch('/api/uncategorized-transactions')
+        .then(response => response.json())
+        .then(data => {
+            if (data.transactions && data.transactions.length > 0) {
+                // Select all uncategorized transactions
+                selectedTransactions.clear();
+                data.transactions.forEach(transaction => {
+                    selectedTransactions.add(transaction.id.toString());
+                });
+                
+                showBulkCategorizeModal();
+            } else {
+                showAlert('No uncategorized transactions found', 'info');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Failed to load uncategorized transactions', 'error');
+        });
+}
+
+function filterByCategory(categoryId) {
+    // Set the category filter and apply
+    document.getElementById('transaction-category-filter').value = categoryId;
+    applyFilters();
+}
+
+function loadQuickCategoriesForBulkModal() {
+    fetch('/api/categories')
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('quick-category-grid');
+            let html = '';
+            
+            // Show most used categories first
+            const categories = (data.categories || []).slice(0, 8); // Show top 8 categories
+            categories.forEach(category => {
+                html += `
+                    <div class="col-md-3 col-sm-6">
+                        <button class="btn btn-outline-secondary w-100 quick-bulk-category" data-category-id="${category.id}">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <div class="category-color-dot me-2" style="background-color: ${category.color}; width: 8px; height: 8px; border-radius: 50%;"></div>
+                                <small>${category.name}</small>
+                            </div>
+                        </button>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            // Add click listeners to quick category buttons
+            document.querySelectorAll('.quick-bulk-category').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Update dropdown selection
+                    document.getElementById('bulk_category').value = this.dataset.categoryId;
+                    
+                    // Update visual selection
+                    document.querySelectorAll('.quick-bulk-category').forEach(b => {
+                        b.classList.remove('btn-primary');
+                        b.classList.add('btn-outline-secondary');
+                    });
+                    this.classList.remove('btn-outline-secondary');
+                    this.classList.add('btn-primary');
+                    
+                    // Enable categorize button
+                    document.getElementById('confirm-bulk-categorize').disabled = false;
+                });
+            });
+            
+            // Also listen to the dropdown changes
+            document.getElementById('bulk_category').addEventListener('change', function() {
+                const selectedCategoryId = this.value;
+                
+                // Update quick category button selection
+                document.querySelectorAll('.quick-bulk-category').forEach(btn => {
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-outline-secondary');
+                    
+                    if (btn.dataset.categoryId === selectedCategoryId) {
+                        btn.classList.remove('btn-outline-secondary');
+                        btn.classList.add('btn-primary');
+                    }
+                });
+                
+                // Enable/disable categorize button
+                document.getElementById('confirm-bulk-categorize').disabled = !selectedCategoryId;
+            });
+        })
+        .catch(error => {
+            console.error('Error loading categories:', error);
+        });
+}
+
+function loadSelectedTransactionsPreview() {
+    const transactionIds = Array.from(selectedTransactions);
+    const container = document.getElementById('selected-transactions-preview');
+    
+    // Get transaction details from the DOM (simplified preview)
+    let html = '';
+    let totalAmount = 0;
+    
+    transactionIds.forEach(transactionId => {
+        const transactionRow = document.querySelector(`[data-transaction-id="${transactionId}"]`);
+        if (transactionRow) {
+            const description = transactionRow.querySelector('td:nth-child(3)').textContent.trim();
+            const amountText = transactionRow.querySelector('td:nth-child(4)').textContent.trim();
+            const amount = parseFloat(amountText.replace(/[^0-9.-]/g, ''));
+            totalAmount += Math.abs(amount);
+            
+            html += `
+                <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                    <span class="text-truncate">${description}</span>
+                    <small class="text-muted">${amountText}</small>
+                </div>
+            `;
+        }
+    });
+    
+    html += `
+        <div class="d-flex justify-content-between align-items-center py-2 mt-2 bg-light rounded">
+            <strong>Total: ${transactionIds.length} transactions</strong>
+            <strong>$${totalAmount.toFixed(2)}</strong>
+        </div>
+    `;
+    
+    container.innerHTML = html;
 } 
