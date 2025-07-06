@@ -111,8 +111,8 @@ def login():
                 flash('Account is temporarily locked due to multiple failed login attempts. Please try again later.', 'error')
                 return render_template('login.html')
             
-            # Check password
-            if user.check_password(password):
+            # Check password (or if it's already verified during 2FA flow)
+            if user.check_password(password) or (password == "verified" and session.get('pending_user_id') == user.id):
                 # If 2FA is enabled, verify the token
                 if user.is_two_factor_enabled:
                     two_factor_verified = False
@@ -133,7 +133,8 @@ def login():
                     elif not (totp_code or backup_code):
                         # Show 2FA form
                         session['pending_user_id'] = user.id
-                        return render_template('login.html', show_2fa=True)
+                        session['pending_username'] = username
+                        return render_template('login.html', show_2fa=True, username=username)
                     
                     if two_factor_verified:
                         user.reset_failed_login()

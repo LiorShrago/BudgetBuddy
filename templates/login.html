@@ -48,7 +48,7 @@
                         <div class="form-text">Use one of your saved backup codes</div>
                     </div>
                     
-                    <input type="hidden" name="username" value="{{ session.get('pending_user_id') }}">
+                    <input type="hidden" name="username" value="{{ username if username else '' }}">
                     <input type="hidden" name="password" value="verified">
                     {% endif %}
                     
