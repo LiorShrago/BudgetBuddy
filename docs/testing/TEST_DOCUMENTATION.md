@@ -205,6 +205,8 @@ The unified finances feature has a comprehensive testing suite covering:
 - Cross-browser compatibility tests
 - Performance tests
 
+The performance tests automatically start a Flask server on port 5000 in a separate thread, so there's no need to manually start the server before running these tests.
+
 For detailed information, see [FINANCES_TEST_DOCUMENTATION.md](FINANCES_TEST_DOCUMENTATION.md).
 
 To run unified finances tests:
@@ -221,7 +223,7 @@ python tests/run_finances_tests.py --responsive     # Responsive design tests
 python tests/run_finances_tests.py --accessibility  # Accessibility tests
 python tests/run_finances_tests.py --cross-browser  # Cross-browser tests
 python tests/run_finances_tests.py --performance    # Performance tests
-```
+   ```
 
 ## Test Coverage
 

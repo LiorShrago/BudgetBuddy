@@ -1,0 +1,10 @@
+{
+  "page_load": {
+    "time": 0.00985978509997949,
+    "passed": true
+  },
+  "api_transactions": {
+    "time": 0.006024736449762713,
+    "passed": true
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "passed": 1,
+    "failed": 1,
+    "skipped": 0,
+    "total": 2
+  },
+  "tests": {
+    "performance": {
+      "total": 2,
+      "passed": 1,
+      "failed": 1,
+      "skipped": 0,
+      "exit_code": 1
+    }
+  }
+}

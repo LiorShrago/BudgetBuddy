@@ -1,0 +1,5 @@
+ERROR: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]
+__main__.py: error: unrecognized arguments: --browser chrome
+  inifile: /home/runner/workspace/pytest.ini
+  rootdir: /home/runner/workspace
+

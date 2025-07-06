@@ -1,0 +1,40 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.10, pytest-8.4.1, pluggy-1.6.0 -- /home/runner/workspace/.pythonlibs/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.11.10', 'Platform': 'Linux-6.2.16-x86_64-with-glibc2.40', 'Packages': {'pytest': '8.4.1', 'pluggy': '1.6.0'}, 'Plugins': {'Flask-Dance': '7.1.0', 'anyio': '4.9.0', 'variables': '3.1.0', 'mock': '3.14.1', 'metadata': '3.1.1', 'cov': '6.2.1', 'base-url': '2.1.0', 'html': '4.1.1', 'selenium': '4.1.0'}, 'Base URL': '', 'Driver': None, 'Capabilities': {}}
+sensitiveurl: .*
+rootdir: /home/runner/workspace
+configfile: pytest.ini
+plugins: Flask-Dance-7.1.0, anyio-4.9.0, variables-3.1.0, mock-3.14.1, metadata-3.1.1, cov-6.2.1, base-url-2.1.0, html-4.1.1, selenium-4.1.0
+collecting ... collected 14 items
+
+test_finances_integration.py::TestFinancesIntegration::test_finances_page_loads PASSED [  7%]
+test_finances_integration.py::TestFinancesIntegration::test_account_summary_data_loaded PASSED [ 14%]
+test_finances_integration.py::TestFinancesIntegration::test_account_sections_rendered PASSED [ 21%]
+test_finances_integration.py::TestFinancesIntegration::test_filter_form_rendered PASSED [ 28%]
+test_finances_integration.py::TestFinancesIntegration::test_quick_filter_buttons_rendered PASSED [ 35%]
+test_finances_integration.py::TestFinancesIntegration::test_account_transactions_api PASSED [ 42%]
+test_finances_integration.py::TestFinancesIntegration::test_filtered_transactions_api PASSED [ 50%]
+test_finances_integration.py::TestFinancesIntegration::test_category_filter_api PASSED [ 57%]
+test_finances_integration.py::TestFinancesIntegration::test_transaction_type_filter_api PASSED [ 64%]
+test_finances_integration.py::TestFinancesIntegration::test_search_filter_api PASSED [ 71%]
+test_finances_integration.py::TestFinancesIntegration::test_add_transaction_api PASSED [ 78%]
+test_finances_integration.py::TestFinancesIntegration::test_update_transaction_api PASSED [ 85%]
+test_finances_integration.py::TestFinancesIntegration::test_delete_transaction_api PASSED [ 92%]
+test_finances_integration.py::TestFinancesIntegration::test_bulk_categorize_api PASSED [100%]
+
+=============================== warnings summary ===============================
+tests/test_finances_integration.py: 55 warnings
+  /home/runner/workspace/tests/conftest.py:384: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    return [Account.query.get(id) for id in account_ids]
+
+tests/test_finances_integration.py: 48 warnings
+  /home/runner/workspace/tests/conftest.py:433: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    return [Category.query.get(id) for id in category_ids]
+
+tests/test_finances_integration.py: 21 warnings
+  /home/runner/workspace/tests/conftest.py:563: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    return [Transaction.query.get(id) for id in transaction_ids]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+====================== 14 passed, 124 warnings in 38.58s =======================

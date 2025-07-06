@@ -1,0 +1,63 @@
+ImportError while loading conftest '/home/runner/workspace/tests/conftest.py'.
+tests/conftest.py:21: in <module>
+    from app import app as flask_app, db
+app.py:51: in <module>
+    db.create_all()
+.pythonlibs/lib/python3.11/site-packages/flask_sqlalchemy/extension.py:900: in create_all
+    self._call_for_binds(bind_key, "create_all")
+.pythonlibs/lib/python3.11/site-packages/flask_sqlalchemy/extension.py:881: in _call_for_binds
+    getattr(metadata, op_name)(bind=engine)
+.pythonlibs/lib/python3.11/site-packages/sqlalchemy/sql/schema.py:5924: in create_all
+    bind._run_ddl_visitor(
+.pythonlibs/lib/python3.11/site-packages/sqlalchemy/engine/base.py:3248: in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+.pythonlibs/lib/python3.11/site-packages/sqlalchemy/engine/base.py:2455: in _run_ddl_visitor
+    ).traverse_single(element)
+      ^^^^^^^^^^^^^^^^^^^^^^^^
+.pythonlibs/lib/python3.11/site-packages/sqlalchemy/sql/visitors.py:664: in traverse_single
+    return meth(obj, **kw)
+           ^^^^^^^^^^^^^^^
+.pythonlibs/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py:982: in visit_metadata
+    self.traverse_single(
+.pythonlibs/lib/python3.11/site-packages/sqlalchemy/sql/visitors.py:664: in traverse_single
+    return meth(obj, **kw)
+           ^^^^^^^^^^^^^^^
+.pythonlibs/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py:1020: in visit_table
+    )._invoke_with(self.connection)
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.pythonlibs/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py:321: in _invoke_with
+    return bind.execute(self)
+           ^^^^^^^^^^^^^^^^^^
+.pythonlibs/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1415: in execute
+    return meth(
+.pythonlibs/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py:187: in _execute_on_connection
+    return connection._execute_ddl(
+.pythonlibs/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1526: in _execute_ddl
+    ret = self._execute_context(
+.pythonlibs/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1842: in _execute_context
+    return self._exec_single_context(
+.pythonlibs/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1982: in _exec_single_context
+    self._handle_dbapi_exception(
+.pythonlibs/lib/python3.11/site-packages/sqlalchemy/engine/base.py:2351: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.pythonlibs/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1963: in _exec_single_context
+    self.dialect.do_execute(
+.pythonlibs/lib/python3.11/site-packages/sqlalchemy/engine/default.py:943: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation "user" does not exist
+E
+E   [SQL:
+E   CREATE TABLE category (
+E   	id SERIAL NOT NULL,
+E   	user_id INTEGER NOT NULL,
+E   	name VARCHAR(100) NOT NULL,
+E   	parent_id INTEGER,
+E   	color VARCHAR(7),
+E   	created_at TIMESTAMP WITHOUT TIME ZONE,
+E   	PRIMARY KEY (id),
+E   	FOREIGN KEY(user_id) REFERENCES "user" (id),
+E   	FOREIGN KEY(parent_id) REFERENCES category (id)
+E   )
+E
+E   ]
+E   (Background on this error at: https://sqlalche.me/e/20/f405)

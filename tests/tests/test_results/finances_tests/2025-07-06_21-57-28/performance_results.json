@@ -1,0 +1,11 @@
+{
+  "page_load": {
+    "time": 0.30779331699886825,
+    "passed": true
+  },
+  "api_transactions": {
+    "time": 0,
+    "passed": false,
+    "error": "Test assertion failed: "
+  }
+}

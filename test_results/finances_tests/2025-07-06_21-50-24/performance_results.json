@@ -1,0 +1,11 @@
+{
+  "page_load": {
+    "time": 0.2876118046027841,
+    "passed": true
+  },
+  "api_transactions": {
+    "time": 0,
+    "passed": false,
+    "error": "Invalid URL '{base_url}/api/account-transactions?account=1': No scheme supplied. Perhaps you meant https://{base_url}/api/account-transactions?account=1?"
+  }
+}

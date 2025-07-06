@@ -1,0 +1,61 @@
+{
+  "summary": {
+    "passed": 1,
+    "failed": 1,
+    "skipped": 0,
+    "total": 2
+  },
+  "tests": {
+    "unit": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 4
+    },
+    "integration": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 4
+    },
+    "e2e": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 4
+    },
+    "responsive": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 4
+    },
+    "accessibility": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 4
+    },
+    "cross_browser": {
+      "chrome": {
+        "total": 0,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "exit_code": 4
+      }
+    },
+    "performance": {
+      "total": 2,
+      "passed": 1,
+      "failed": 1,
+      "skipped": 0,
+      "exit_code": 1
+    }
+  }
+}

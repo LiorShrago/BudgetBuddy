@@ -1,0 +1,17 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.10, pytest-8.4.1, pluggy-1.6.0 -- /home/runner/workspace/.pythonlibs/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.11.10', 'Platform': 'Linux-6.2.16-x86_64-with-glibc2.40', 'Packages': {'pytest': '8.4.1', 'pluggy': '1.6.0'}, 'Plugins': {'Flask-Dance': '7.1.0', 'anyio': '4.9.0', 'variables': '3.1.0', 'mock': '3.14.1', 'metadata': '3.1.1', 'cov': '6.2.1', 'base-url': '2.1.0', 'html': '4.1.1', 'selenium': '4.1.0'}, 'Base URL': '', 'Driver': None, 'Capabilities': {}}
+sensitiveurl: .*
+rootdir: /home/runner/workspace
+configfile: pytest.ini
+plugins: Flask-Dance-7.1.0, anyio-4.9.0, variables-3.1.0, mock-3.14.1, metadata-3.1.1, cov-6.2.1, base-url-2.1.0, html-4.1.1, selenium-4.1.0
+collecting ... collected 9 items / 9 deselected / 0 selected
+
+=============================== warnings summary ===============================
+test_finances_js.py:12
+  /home/runner/workspace/tests/test_finances_js.py:12: PytestUnknownMarkWarning: Unknown pytest.mark.frontend - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.frontend
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================= 9 deselected, 1 warning in 0.03s =======================

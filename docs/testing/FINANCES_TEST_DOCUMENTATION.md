@@ -223,8 +223,26 @@ The test suite includes fixtures for:
 
 - Selenium tests may occasionally fail due to timing issues
 - Safari automation requires Safari's developer mode to be enabled
-- Performance tests require a running Flask server
 - Accessibility tests may produce false positives that require manual review
+
+## Performance Testing
+
+The performance tests automatically start a Flask server on a dynamic port (starting with 5000) before running the tests. The server is run in a separate thread and will be automatically shut down when the tests complete.
+
+The tests measure:
+1. Page load performance - How quickly the finances page loads
+2. API response performance - How quickly the account transactions API responds
+
+The performance tests are designed to be robust:
+- They dynamically find an available port to avoid conflicts
+- They handle various API response scenarios gracefully
+- They attempt to find or create test accounts as needed
+
+If you encounter issues with the performance tests:
+1. Ensure the Flask application can be imported correctly
+2. Check that the test user and authentication are properly set up
+3. Verify that the API endpoints are correctly implemented
+4. Check for firewall or network issues that might block connections
 
 ## Troubleshooting
 

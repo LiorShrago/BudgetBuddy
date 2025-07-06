@@ -200,7 +200,7 @@ The unified finances feature consolidates account management, transaction tracki
   - Fix approaches:
     - Check browser console for errors
     - Verify all JS/CSS dependencies are loaded
-    - Inspect DOM elements for correct structure
+    - Inspect DOM elements for correct structure 
 
 ### Unified Finances Issues
 - Issue: Transactions not loading in account sections

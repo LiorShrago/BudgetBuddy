@@ -1,0 +1,98 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.10, pytest-8.4.1, pluggy-1.6.0 -- /home/runner/workspace/.pythonlibs/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.11.10', 'Platform': 'Linux-6.2.16-x86_64-with-glibc2.40', 'Packages': {'pytest': '8.4.1', 'pluggy': '1.6.0'}, 'Plugins': {'Flask-Dance': '7.1.0', 'anyio': '4.9.0', 'variables': '3.1.0', 'mock': '3.14.1', 'metadata': '3.1.1', 'cov': '6.2.1', 'base-url': '2.1.0', 'html': '4.1.1', 'selenium': '4.1.0'}, 'Base URL': '', 'Driver': None, 'Capabilities': {}}
+sensitiveurl: .*
+rootdir: /home/runner/workspace
+configfile: pytest.ini
+plugins: Flask-Dance-7.1.0, anyio-4.9.0, variables-3.1.0, mock-3.14.1, metadata-3.1.1, cov-6.2.1, base-url-2.1.0, html-4.1.1, selenium-4.1.0
+collecting ... collected 11 items / 5 deselected / 6 selected
+
+test_finances_responsive_accessibility.py::TestFinancesResponsive::test_responsive_layout[size0] ERROR [ 16%]
+test_finances_responsive_accessibility.py::TestFinancesResponsive::test_responsive_layout[size1] ERROR [ 33%]
+test_finances_responsive_accessibility.py::TestFinancesResponsive::test_responsive_layout[size2] ERROR [ 50%]
+test_finances_responsive_accessibility.py::TestFinancesResponsive::test_responsive_layout[size3] ERROR [ 66%]
+test_finances_responsive_accessibility.py::TestFinancesResponsive::test_filter_panel_collapse ERROR [ 83%]
+test_finances_responsive_accessibility.py::TestFinancesResponsive::test_quick_actions_menu ERROR [100%]
+
+==================================== ERRORS ====================================
+____ ERROR at setup of TestFinancesResponsive.test_responsive_layout[size0] ____
+
+request = <SubRequest 'driver_class' for <Function test_responsive_layout[size0]>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+____ ERROR at setup of TestFinancesResponsive.test_responsive_layout[size1] ____
+
+request = <SubRequest 'driver_class' for <Function test_responsive_layout[size0]>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+____ ERROR at setup of TestFinancesResponsive.test_responsive_layout[size2] ____
+
+request = <SubRequest 'driver_class' for <Function test_responsive_layout[size0]>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+____ ERROR at setup of TestFinancesResponsive.test_responsive_layout[size3] ____
+
+request = <SubRequest 'driver_class' for <Function test_responsive_layout[size0]>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+_____ ERROR at setup of TestFinancesResponsive.test_filter_panel_collapse ______
+
+request = <SubRequest 'driver_class' for <Function test_responsive_layout[size0]>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+_______ ERROR at setup of TestFinancesResponsive.test_quick_actions_menu _______
+
+request = <SubRequest 'driver_class' for <Function test_responsive_layout[size0]>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+=========================== short test summary info ============================
+ERROR test_finances_responsive_accessibility.py::TestFinancesResponsive::test_responsive_layout[size0]
+ERROR test_finances_responsive_accessibility.py::TestFinancesResponsive::test_responsive_layout[size1]
+ERROR test_finances_responsive_accessibility.py::TestFinancesResponsive::test_responsive_layout[size2]
+ERROR test_finances_responsive_accessibility.py::TestFinancesResponsive::test_responsive_layout[size3]
+ERROR test_finances_responsive_accessibility.py::TestFinancesResponsive::test_filter_panel_collapse
+ERROR test_finances_responsive_accessibility.py::TestFinancesResponsive::test_quick_actions_menu
+======================= 5 deselected, 6 errors in 0.19s ========================

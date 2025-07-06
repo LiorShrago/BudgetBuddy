@@ -1,0 +1,84 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.10, pytest-8.4.1, pluggy-1.6.0 -- /home/runner/workspace/.pythonlibs/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.11.10', 'Platform': 'Linux-6.2.16-x86_64-with-glibc2.40', 'Packages': {'pytest': '8.4.1', 'pluggy': '1.6.0'}, 'Plugins': {'Flask-Dance': '7.1.0', 'anyio': '4.9.0', 'variables': '3.1.0', 'mock': '3.14.1', 'metadata': '3.1.1', 'cov': '6.2.1', 'base-url': '2.1.0', 'html': '4.1.1', 'selenium': '4.1.0'}, 'Base URL': '', 'Driver': None, 'Capabilities': {}}
+sensitiveurl: .*
+rootdir: /home/runner/workspace
+configfile: pytest.ini
+plugins: Flask-Dance-7.1.0, anyio-4.9.0, variables-3.1.0, mock-3.14.1, metadata-3.1.1, cov-6.2.1, base-url-2.1.0, html-4.1.1, selenium-4.1.0
+collecting ... collected 11 items / 6 deselected / 5 selected
+
+test_finances_responsive_accessibility.py::TestFinancesAccessibility::test_axe_accessibility ERROR [ 20%]
+test_finances_responsive_accessibility.py::TestFinancesAccessibility::test_keyboard_navigation ERROR [ 40%]
+test_finances_responsive_accessibility.py::TestFinancesAccessibility::test_screen_reader_accessibility ERROR [ 60%]
+test_finances_responsive_accessibility.py::TestFinancesAccessibility::test_color_contrast ERROR [ 80%]
+test_finances_responsive_accessibility.py::TestFinancesAccessibility::test_table_accessibility ERROR [100%]
+
+==================================== ERRORS ====================================
+______ ERROR at setup of TestFinancesAccessibility.test_axe_accessibility ______
+
+request = <SubRequest 'driver_class' for <Function test_axe_accessibility>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+_____ ERROR at setup of TestFinancesAccessibility.test_keyboard_navigation _____
+
+request = <SubRequest 'driver_class' for <Function test_axe_accessibility>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+_ ERROR at setup of TestFinancesAccessibility.test_screen_reader_accessibility _
+
+request = <SubRequest 'driver_class' for <Function test_axe_accessibility>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+_______ ERROR at setup of TestFinancesAccessibility.test_color_contrast ________
+
+request = <SubRequest 'driver_class' for <Function test_axe_accessibility>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+_____ ERROR at setup of TestFinancesAccessibility.test_table_accessibility _____
+
+request = <SubRequest 'driver_class' for <Function test_axe_accessibility>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+=========================== short test summary info ============================
+ERROR test_finances_responsive_accessibility.py::TestFinancesAccessibility::test_axe_accessibility
+ERROR test_finances_responsive_accessibility.py::TestFinancesAccessibility::test_keyboard_navigation
+ERROR test_finances_responsive_accessibility.py::TestFinancesAccessibility::test_screen_reader_accessibility
+ERROR test_finances_responsive_accessibility.py::TestFinancesAccessibility::test_color_contrast
+ERROR test_finances_responsive_accessibility.py::TestFinancesAccessibility::test_table_accessibility
+======================= 6 deselected, 5 errors in 0.18s ========================

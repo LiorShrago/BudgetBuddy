@@ -1,0 +1,112 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.10, pytest-8.4.1, pluggy-1.6.0 -- /home/runner/workspace/.pythonlibs/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.11.10', 'Platform': 'Linux-6.2.16-x86_64-with-glibc2.40', 'Packages': {'pytest': '8.4.1', 'pluggy': '1.6.0'}, 'Plugins': {'Flask-Dance': '7.1.0', 'anyio': '4.9.0', 'variables': '3.1.0', 'mock': '3.14.1', 'metadata': '3.1.1', 'cov': '6.2.1', 'base-url': '2.1.0', 'html': '4.1.1', 'selenium': '4.1.0'}, 'Base URL': '', 'Driver': None, 'Capabilities': {}}
+sensitiveurl: .*
+rootdir: /home/runner/workspace
+configfile: pytest.ini
+plugins: Flask-Dance-7.1.0, anyio-4.9.0, variables-3.1.0, mock-3.14.1, metadata-3.1.1, cov-6.2.1, base-url-2.1.0, html-4.1.1, selenium-4.1.0
+collecting ... collected 7 items
+
+test_finances_e2e.py::TestFinancesE2E::test_complete_account_viewing_workflow ERROR [ 14%]
+test_finances_e2e.py::TestFinancesE2E::test_transaction_filtering_workflow ERROR [ 28%]
+test_finances_e2e.py::TestFinancesE2E::test_inline_categorization_workflow ERROR [ 42%]
+test_finances_e2e.py::TestFinancesE2E::test_bulk_categorization_workflow ERROR [ 57%]
+test_finances_e2e.py::TestFinancesE2E::test_add_transaction_workflow ERROR [ 71%]
+test_finances_e2e.py::TestFinancesE2E::test_ai_suggestion_workflow ERROR [ 85%]
+test_finances_e2e.py::TestFinancesE2E::test_keyboard_navigation ERROR    [100%]
+
+==================================== ERRORS ====================================
+___ ERROR at setup of TestFinancesE2E.test_complete_account_viewing_workflow ___
+
+request = <SubRequest 'driver_class' for <Function test_complete_account_viewing_workflow>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+____ ERROR at setup of TestFinancesE2E.test_transaction_filtering_workflow _____
+
+request = <SubRequest 'driver_class' for <Function test_complete_account_viewing_workflow>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+____ ERROR at setup of TestFinancesE2E.test_inline_categorization_workflow _____
+
+request = <SubRequest 'driver_class' for <Function test_complete_account_viewing_workflow>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+_____ ERROR at setup of TestFinancesE2E.test_bulk_categorization_workflow ______
+
+request = <SubRequest 'driver_class' for <Function test_complete_account_viewing_workflow>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+_______ ERROR at setup of TestFinancesE2E.test_add_transaction_workflow ________
+
+request = <SubRequest 'driver_class' for <Function test_complete_account_viewing_workflow>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+________ ERROR at setup of TestFinancesE2E.test_ai_suggestion_workflow _________
+
+request = <SubRequest 'driver_class' for <Function test_complete_account_viewing_workflow>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+__________ ERROR at setup of TestFinancesE2E.test_keyboard_navigation __________
+
+request = <SubRequest 'driver_class' for <Function test_complete_account_viewing_workflow>>
+
+    @pytest.fixture(scope="session")
+    def driver_class(request):
+        driver = request.config.getoption("driver")
+        if driver is None:
+>           raise pytest.UsageError("--driver must be specified")
+E           _pytest.config.exceptions.UsageError: --driver must be specified
+
+../.pythonlibs/lib/python3.11/site-packages/pytest_selenium/pytest_selenium.py:156: UsageError
+=========================== short test summary info ============================
+ERROR test_finances_e2e.py::TestFinancesE2E::test_complete_account_viewing_workflow
+ERROR test_finances_e2e.py::TestFinancesE2E::test_transaction_filtering_workflow
+ERROR test_finances_e2e.py::TestFinancesE2E::test_inline_categorization_workflow
+ERROR test_finances_e2e.py::TestFinancesE2E::test_bulk_categorization_workflow
+ERROR test_finances_e2e.py::TestFinancesE2E::test_add_transaction_workflow - ...
+ERROR test_finances_e2e.py::TestFinancesE2E::test_ai_suggestion_workflow - _p...
+ERROR test_finances_e2e.py::TestFinancesE2E::test_keyboard_navigation - _pyte...
+============================== 7 errors in 0.22s ===============================

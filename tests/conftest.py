@@ -12,7 +12,7 @@ import pytest
 import sys
 import pyotp
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from flask import appcontext_pushed, g
 
 # Add the parent directory to the path so we can import from the main application
@@ -307,4 +307,259 @@ def auth(client):
                 follow_redirects=True
             )
     
-    return AuthActions(client) 
+    return AuthActions(client)
+
+@pytest.fixture
+def app_client_with_user(app, client, test_user):
+    """
+    Create an authenticated client with a test user for the finances tests.
+    
+    Args:
+        app: The Flask application fixture
+        client: The Flask test client fixture
+        test_user: The test user fixture
+        
+    Returns:
+        flask.testing.FlaskClient: An authenticated test client
+    """
+    user_id, username, password = test_user
+    
+    # Login
+    client.post('/login', data={
+        'username': username,
+        'password': password
+    }, follow_redirects=True)
+    
+    # Add application root for URL generation
+    client.application_root = "http://localhost.localdomain"
+    
+    return client
+
+@pytest.fixture
+def sample_accounts(app, test_user):
+    """
+    Create sample accounts for finances tests.
+    
+    Args:
+        app: The Flask application fixture
+        test_user: The test user fixture
+        
+    Returns:
+        list: List of Account objects
+    """
+    user_id, _, _ = test_user
+    account_ids = []
+    
+    with app.app_context():
+        # Create various account types
+        account_data = [
+            {'name': 'Checking Account', 'account_type': 'checking', 'balance': 2500.00},
+            {'name': 'Savings Account', 'account_type': 'savings', 'balance': 10000.00},
+            {'name': 'Credit Card', 'account_type': 'credit_card', 'balance': -1500.00},
+            {'name': 'Investment Account', 'account_type': 'investment', 'balance': 25000.00},
+            {'name': 'Mortgage', 'account_type': 'loan', 'balance': -200000.00}
+        ]
+        
+        accounts = []
+        for data in account_data:
+            account = Account(
+                user_id=user_id,
+                name=data['name'],
+                account_type=data['account_type'],
+                balance=data['balance'],
+                is_active=True
+            )
+            db.session.add(account)
+            accounts.append(account)
+            
+        db.session.commit()
+        
+        # Store account IDs
+        for account in accounts:
+            account_ids.append(account.id)
+        
+    # Return account IDs instead of objects to prevent detached instance errors
+    def get_accounts():
+        with app.app_context():
+            return [Account.query.get(id) for id in account_ids]
+    
+    return get_accounts
+
+@pytest.fixture
+def sample_categories(app, test_user):
+    """
+    Create sample categories for finances tests.
+    
+    Args:
+        app: The Flask application fixture
+        test_user: The test user fixture
+        
+    Returns:
+        list: List of Category objects
+    """
+    user_id, _, _ = test_user
+    category_ids = []
+    
+    with app.app_context():
+        # Create categories
+        category_data = [
+            {'name': 'Groceries', 'color': '#4CAF50'},
+            {'name': 'Dining Out', 'color': '#FF5722'},
+            {'name': 'Transportation', 'color': '#2196F3'},
+            {'name': 'Housing', 'color': '#9C27B0'},
+            {'name': 'Entertainment', 'color': '#FF9800'},
+            {'name': 'Income', 'color': '#00BCD4'}
+        ]
+        
+        categories = []
+        for data in category_data:
+            category = Category(
+                user_id=user_id,
+                name=data['name'],
+                color=data['color']
+            )
+            db.session.add(category)
+            categories.append(category)
+            
+        db.session.commit()
+        
+        # Store category IDs
+        for category in categories:
+            category_ids.append(category.id)
+    
+    # Return category IDs instead of objects to prevent detached instance errors
+    def get_categories():
+        with app.app_context():
+            return [Category.query.get(id) for id in category_ids]
+    
+    return get_categories
+
+@pytest.fixture
+def sample_transactions(app, sample_accounts, sample_categories):
+    """
+    Create sample transactions for finances tests.
+    
+    Args:
+        app: The Flask application fixture
+        sample_accounts: The sample accounts fixture
+        sample_categories: The sample categories fixture
+        
+    Returns:
+        list: List of Transaction objects
+    """
+    transaction_ids = []
+    
+    with app.app_context():
+        # Get accounts and categories
+        accounts = sample_accounts()
+        categories = sample_categories()
+        
+        # Create transactions for each account
+        checking_account = accounts[0]
+        savings_account = accounts[1]
+        credit_card = accounts[2]
+        
+        # Get category IDs
+        groceries_category = categories[0]
+        dining_category = categories[1]
+        transport_category = categories[2]
+        income_category = categories[5]
+        
+        # Create transactions
+        transaction_data = [
+            # Checking account transactions
+            {
+                'account_id': checking_account.id,
+                'date': date(2025, 1, 15),
+                'description': 'Grocery shopping at Walmart',
+                'amount': 120.50,
+                'transaction_type': 'expense',
+                'category_id': groceries_category.id,
+                'merchant': 'Walmart'
+            },
+            {
+                'account_id': checking_account.id,
+                'date': date(2025, 1, 20),
+                'description': 'Dinner at Olive Garden',
+                'amount': 65.75,
+                'transaction_type': 'expense',
+                'category_id': dining_category.id,
+                'merchant': 'Olive Garden'
+            },
+            {
+                'account_id': checking_account.id,
+                'date': date(2025, 1, 25),
+                'description': 'Salary deposit',
+                'amount': 2500.00,
+                'transaction_type': 'income',
+                'category_id': income_category.id,
+                'merchant': 'Employer Inc.'
+            },
+            
+            # Credit card transactions
+            {
+                'account_id': credit_card.id,
+                'date': date(2025, 1, 10),
+                'description': 'Gas station fill-up',
+                'amount': 45.00,
+                'transaction_type': 'expense',
+                'category_id': transport_category.id,
+                'merchant': 'Shell'
+            },
+            {
+                'account_id': credit_card.id,
+                'date': date(2025, 1, 18),
+                'description': 'Online grocery order',
+                'amount': 85.25,
+                'transaction_type': 'expense',
+                'category_id': groceries_category.id,
+                'merchant': 'Amazon Fresh'
+            },
+            
+            # Uncategorized transactions
+            {
+                'account_id': checking_account.id,
+                'date': date(2025, 2, 5),
+                'description': 'Unknown purchase',
+                'amount': 37.42,
+                'transaction_type': 'expense',
+                'category_id': None,
+                'merchant': None
+            },
+            {
+                'account_id': credit_card.id,
+                'date': date(2025, 2, 8),
+                'description': 'Online purchase',
+                'amount': 29.99,
+                'transaction_type': 'expense',
+                'category_id': None,
+                'merchant': 'Amazon'
+            }
+        ]
+        
+        transactions = []
+        for data in transaction_data:
+            transaction = Transaction(
+                account_id=data['account_id'],
+                date=data['date'],
+                description=data['description'],
+                amount=data['amount'],
+                transaction_type=data['transaction_type'],
+                category_id=data['category_id'],
+                merchant=data['merchant']
+            )
+            db.session.add(transaction)
+            transactions.append(transaction)
+            
+        db.session.commit()
+        
+        # Store transaction IDs
+        for transaction in transactions:
+            transaction_ids.append(transaction.id)
+    
+    # Return transaction IDs instead of objects to prevent detached instance errors
+    def get_transactions():
+        with app.app_context():
+            return [Transaction.query.get(id) for id in transaction_ids]
+    
+    return get_transactions 

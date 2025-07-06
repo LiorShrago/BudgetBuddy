@@ -97,4 +97,6 @@ def pytest_addoption(parser):
     parser.addoption('--browser', action='store', default='chrome',
                      help='Browser to use for testing: chrome, firefox, edge, safari')
     parser.addoption('--headless', action='store_true',
-                     help='Run browser in headless mode') 
+                     help='Run browser in headless mode')
+    parser.addoption('--driver', action='store', default='chrome',
+                     help='Selenium driver to use (required by pytest-selenium)') 
